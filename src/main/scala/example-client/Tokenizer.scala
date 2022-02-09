@@ -3,13 +3,15 @@ import fsm._
 
 class Tokenizer {
 
-    def makeInitialFsm() = {
-        val fsm = new FSM();
-    }
+    var fsm = new FeatureOrientedFSM()
+    fsm.addState(new SimpleState())
+    
 }
 
 object Main extends App {
-    val x: Transition = new Transition(new Lambda(), new SimpleState());
-    x.token = new Character('a');
-    println(x.token.isLamda());
+
+    val numFinder = new Tokenizer()
+    println(numFinder.fsm.states)
+
+
 }
