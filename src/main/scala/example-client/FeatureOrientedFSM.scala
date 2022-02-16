@@ -6,64 +6,71 @@ class FeatureOrientedFSM extends FSM {
     val start = new SimpleState()
     val acceptState = new SimpleState()
     val accept = Set[State](acceptState)
-    var stateMap = Map[String, State]("start" -> start, "accept" -> acceptState)
     var states = Set[State](start, acceptState)
     var alphabet = Set[Token](new Lambda())
+    var transitions = Set[Transition]()
 
-    def addState(s: State) = {
-        if (!states.iterator.contains(s)) {
-            states += s
-            if (s.getName() != null) {
-                stateMap += s.getName() -> s
-            } else {
-                stateMap += states.size.toString() -> s
-            }
-        }
+    def addTransition(t: Transition) = {
+        // Adds both states to machine if needed
+        states += t.source
+        states += t.destination
+
+        transitions += t
     }
 
-    // Adds both states to machine if needed
-    def addTransition(s: State, t: Transition) = {
-        addState(s)
-        addState(t.destination)
-        s.transitions += t
-    }
-
-    // Adds s to machine if needed
-    def insertFsm(s: State, fsm: FSM) = {
-        addState(s)
-
-        // Change s to have a single transition to fsm.start
-        val transitions = s.transitions
-        s.transitions = Set[Transition]()
-        s.transitions += Transition(new Lambda(), fsm.start)
+    def insertFsm(s: State, fsm: FeatureOrientedFSM) = {
+        // Adds s to machine if needed
+        states += s
         
         // Move the former transitions of s to fsm.accept
-        for (state <- fsm.accept) {
-            state.transitions ++ transitions
+        var newTransitions = Set[Transition]()
+        for (transition <- transitions) {
+            if (transition.source == s) {
+                newTransitions += Transition(fsm.acceptState, transition.token, transition.destination)
+            } else {
+                newTransitions += transition
+            }
         }
+        transitions = transitions ++ newTransitions 
+
+        // Give s a single transition to fsm.start
+        transitions += Transition(s, new Lambda(), fsm.start)
 
         // Add all states from fsm to this
-        for (state <- fsm.states) {
-            addState(state)
-        }
+        states = states ++ fsm.states
     }
 
     // For purely example
     def accept(input: Iterable[Token]): Set[State] = {
-        var currentStates = Set[State](start)
-        for (t: Token <- input) {
-            currentStates ++ acceptHelper(currentStates, t)
+        val inIterater = input.iterator
+        var currentstates = Set[State](start)
+        var futurestates = currentstates
+        while (futurestates != Set[State]()) {
+            currentstates = futurestates
+            futurestates = Set[State]()
+            futurestates = acceptLambdas(currentstates)
+            if (futurestates == Set[State]() && inIterater.hasNext) {
+                futurestates = futurestates ++ acceptTokens(currentstates ++ futurestates, inIterater.next())
+            }
         }
-        currentStates
+        currentstates
     }
 
-    private def acceptHelper(s: Set[State], t: Token): Set[State] = {
+    private def acceptLambdas(states: Set[State]): Set[State] = {
         var toReturn = Set[State]()
-        for(s: State <- s) {
-            for (transition: Transition <- s.transitions) {
-                if (transition.token == t) {
-                    toReturn += transition.destination
-                }
+        for (transition <- transitions) {
+            if (states.contains(transition.source) && transition.token.isLamda()) {
+                toReturn += transition.destination
+            }
+        }
+        toReturn
+    }
+
+    private def acceptTokens(states: Set[State], t: Token): Set[State] = {
+        var toReturn = Set[State]()
+        for (transition <- transitions) {
+            if (states.contains(transition.source) && transition.token == t) {
+                toReturn += transition.destination
             }
         }
         toReturn

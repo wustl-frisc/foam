@@ -4,14 +4,17 @@ import fsm._
 class Tokenizer {
 
     var fsm = new FeatureOrientedFSM()
-    fsm.addState(new SimpleState())
     
 }
 
 object Main extends App {
 
-    val numFinder = new Tokenizer()
-    println(numFinder.fsm.states)
+    val numFinder = (new Tokenizer()).fsm
+    println(numFinder.states)
 
+    numFinder.addTransition(new Transition(numFinder.start, new Lambda(), numFinder.acceptState))
+
+    println(numFinder.states)
+    println(numFinder.accept(List[Token]()))
 
 }

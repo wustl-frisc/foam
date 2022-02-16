@@ -13,7 +13,7 @@ class SimpleState() extends State {
     }
 
     def moveTransition(t: Transition, dest: State) = {
-        val updated = Transition(t.token, dest)
+        val updated = Transition(t.source, t.token, dest)
         transitions -= t
         transitions += updated
     }
@@ -23,7 +23,7 @@ class SimpleState() extends State {
     }
 
     def changeToken(t: Transition, token: Token) = {
-        val updated = Transition(token, t.destination)
+        val updated = Transition(t.source, token, t.destination)
         transitions -= t
         transitions += updated
     }
