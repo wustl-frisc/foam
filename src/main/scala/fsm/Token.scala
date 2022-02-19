@@ -1,5 +1,5 @@
 package fsm
 
 trait Token {
-    def isLamda(): Boolean = false
+    def isLamda: Boolean = false
 }

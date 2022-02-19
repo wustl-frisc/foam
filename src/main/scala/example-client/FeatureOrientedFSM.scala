@@ -5,10 +5,11 @@ class FeatureOrientedFSM extends FSM {
 
     val start = new SimpleState()
     val acceptState = new SimpleState()
-    val accept = Set[State](acceptState)
     var states = Set[State](start, acceptState)
-    var alphabet = Set[Token](new Lambda())
+    val alphabet = Set[Token](new Lambda())
     var transitions = Set[Transition]()
+
+    override def accept: Set[State] = Set[State](acceptState)
 
     def addTransition(t: Transition) = {
         // Adds both states to machine if needed
@@ -59,7 +60,7 @@ class FeatureOrientedFSM extends FSM {
     private def acceptLambdas(states: Set[State]): Set[State] = {
         var toReturn = Set[State]()
         for (transition <- transitions) {
-            if (states.contains(transition.source) && transition.token.isLamda()) {
+            if (states.contains(transition.source) && transition.token.isLamda) {
                 toReturn += transition.destination
             }
         }
