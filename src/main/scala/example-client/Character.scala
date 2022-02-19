@@ -1,6 +1,6 @@
 package `example-client`
 import fsm._
 
-class Character(c: Char) extends Token {
+final case class Character(c: Char) extends Token {
 
 }

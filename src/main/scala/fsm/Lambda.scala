@@ -1,5 +1,5 @@
 package fsm
 
-class Lambda extends Token {
+final case class Lambda() extends Token {
     override def isLamda: Boolean = true
 }

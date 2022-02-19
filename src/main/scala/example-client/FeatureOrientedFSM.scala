@@ -1,27 +1,35 @@
 package `example-client`
 import fsm._
 
-class FeatureOrientedFSM extends FSM {
-
-    val start = new SimpleState()
-    val acceptState = new SimpleState()
-    var states = Set[State](start, acceptState)
-    val alphabet = Set[Token](new Lambda())
-    var transitions = Set[Transition]()
+final case class FeatureOrientedFSM(val start: State, val acceptState: State, val states: Set[State], val alphabet: Set[Token], val transitions: Set[Transition]) extends FSM {
 
     override def accept: Set[State] = Set[State](acceptState)
 
-    def addTransition(t: Transition) = {
-        // Adds both states to machine if needed
-        states += t.source
-        states += t.destination
-
-        transitions += t
+    def addTransition(t: Transition): FeatureOrientedFSM = {
+        // Adds both states and the token to machine if needed
+        val newStates = states + t.source + t.destination
+        val newAlphabet = alphabet + t.token
+        val newTransitions = transitions + t
+        FeatureOrientedFSM(start, acceptState, newStates, newAlphabet, newTransitions)
     }
 
-    def insertFsm(s: State, fsm: FeatureOrientedFSM) = {
+    def moveTransition(t: Transition, dest: State): FeatureOrientedFSM = {
+        // Adds dest to the machine if needed
+        val newStates = states + dest
+        val newTransitions = transitions - t + Transition(t.source, t.token, dest)
+        FeatureOrientedFSM(start, acceptState, newStates, alphabet, newTransitions)
+    }
+
+    def changeToken(t: Transition, newToken: Token) = {
+        // Adds newToken to the alphabet if needed
+        val newAlphabet = alphabet + newToken
+        val newTransitions = transitions - t + Transition(t.source, newToken, t.destination)
+        FeatureOrientedFSM(start, acceptState, states, newAlphabet, newTransitions)
+    }
+
+    def insertFsm(s: State, fsm: FeatureOrientedFSM): FeatureOrientedFSM = {
         // Adds s to machine if needed
-        states += s
+        var newStates = states + s
         
         // Move the former transitions of s to fsm.accept
         var newTransitions = Set[Transition]()
@@ -32,13 +40,15 @@ class FeatureOrientedFSM extends FSM {
                 newTransitions += transition
             }
         }
-        transitions = transitions ++ newTransitions 
 
         // Give s a single transition to fsm.start
-        transitions += Transition(s, new Lambda(), fsm.start)
+        newTransitions += Transition(s, new Lambda(), fsm.start)
 
-        // Add all states from fsm to this
-        states = states ++ fsm.states
+        // Add all states and tokens from fsm to this
+        newStates = newStates ++ fsm.states
+        val newAlphabet = alphabet ++ fsm.alphabet
+
+        FeatureOrientedFSM(start, acceptState, newStates, newAlphabet, newTransitions)
     }
 
     // For purely example
@@ -77,4 +87,12 @@ class FeatureOrientedFSM extends FSM {
         toReturn
     }
 
+}
+
+object FeatureOrientedFSM {
+    def initiliaze(): FeatureOrientedFSM = {
+        val start = new SimpleState()
+        val acceptState = new SimpleState()
+        FeatureOrientedFSM(start, acceptState, Set[State](acceptState, start), Set[Token](new Lambda()), Set[Transition]())
+    }
 }

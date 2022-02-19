@@ -1,15 +1,15 @@
 package `example-client`
 import fsm._
 
-class Tokenizer {
+object Tokenizer {
 
-    var fsm = new FeatureOrientedFSM()
+    var fsm = FeatureOrientedFSM.initiliaze()
     
 }
 
 object Main extends App {
 
-    val numFinder = (new Tokenizer()).fsm
+    val numFinder = Tokenizer.fsm
     println(numFinder.states)
 
     numFinder.addTransition(new Transition(numFinder.start, new Lambda(), numFinder.acceptState))
