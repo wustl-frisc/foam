@@ -5,8 +5,7 @@ import scalaclient._
 
 object Main extends App {
 
-    val numFinder = Tokenizer.fsm
-
-    println(numFinder.accept(List[Token]()))
+    val tokenizer = Tokenizer.fsm
+    tokenizer.accept(List[Token](Character('0'), Character('X'), Character('1'), Character(' ')))
 
 }

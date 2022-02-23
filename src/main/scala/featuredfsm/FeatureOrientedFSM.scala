@@ -34,8 +34,11 @@ final case class FeatureOrientedFSM(
     }
 
     def addCode(s: State, f: Token => Unit) = {
-        val newStates = states - s + SimpleState(f :: s.body)
-        FeatureOrientedFSM(start, acceptState, newStates, alphabet, transitions)
+        val modifiedState = new SimpleState(f::s.body)
+        val newStart = if (s == start) modifiedState else start
+        val newAccept = if (s == acceptState) modifiedState else acceptState
+        val newStates = states - s + modifiedState
+        FeatureOrientedFSM(newStart, newAccept, newStates, alphabet, transitions)
     }
 
     def insertFsm(s: State, fsm: FeatureOrientedFSM) = {
@@ -53,7 +56,7 @@ final case class FeatureOrientedFSM(
         }
 
         // Give s a single transition to fsm.start
-        newTransitions += Transition(s, new Lambda(), fsm.start)
+        newTransitions += Transition(s, Lambda, fsm.start)
 
         // Add all states and tokens from fsm to this
         newStates = newStates ++ fsm.states
@@ -62,43 +65,30 @@ final case class FeatureOrientedFSM(
         FeatureOrientedFSM(start, acceptState, newStates, newAlphabet, newTransitions)
     }
 
-    // For purely example (REWRITE IMMEDIATELYYYYY)
+    // For purely example
     def accept(input: Iterable[Token]): Set[State] = {
-        val inIterater = input.iterator
-        var currentstates = Set[State](start)
-        var futurestates = currentstates
-        while (futurestates != Set[State]()) {
-            currentstates = futurestates
-            for (s <- currentStates) {
-                s.executeCode(/* token */)
-            }
-            futurestates = Set[State]()
-            futurestates = acceptLambdas(currentstates)
-            if (futurestates == Set[State]() && inIterater.hasNext) {
-                futurestates = futurestates ++ acceptTokens(currentstates ++ futurestates, inIterater.next())
-            }
-        }
-        currentstates
+        start.executeCode(Lambda)
+        acceptHelper(input.iterator, start)
     }
 
-    private def acceptLambdas(states: Set[State]): Set[State] = {
-        var toReturn = Set[State]()
-        for (transition <- transitions) {
-            if (states.contains(transition.source) && transition.token.isLamda) {
-                toReturn += transition.destination
+    private def acceptHelper(input: Iterator[Token], s: State): Set[State] = {
+        val token = if (input.hasNext) input.next() else Lambda
+        var finalStates = Set[State]()
+        for (t <- transitions) {
+            if (t.source == s) {
+                if (t.token.isLamda) {
+                    t.destination.executeCode(Lambda)
+                    finalStates = finalStates ++ acceptHelper(input, t.destination)
+                } else if (t.token == token) {
+                    t.destination.executeCode(token)
+                    finalStates = finalStates ++ acceptHelper(input, t.destination)
+                }
             }
         }
-        toReturn
-    }
-
-    private def acceptTokens(states: Set[State], t: Token): Set[State] = {
-        var toReturn = Set[State]()
-        for (transition <- transitions) {
-            if (states.contains(transition.source) && transition.token == t) {
-                toReturn += transition.destination
-            }
+        if (finalStates == Set[State]()) {
+            finalStates += s
         }
-        toReturn
+        finalStates
     }
 
 }
@@ -107,6 +97,6 @@ object FeatureOrientedFSM {
     def initiliaze(): FeatureOrientedFSM = {
         val start = new SimpleState()
         val acceptState = new SimpleState()
-        FeatureOrientedFSM(start, acceptState, Set[State](acceptState, start), Set[Token](new Lambda()), Set[Transition]())
+        FeatureOrientedFSM(start, acceptState, Set[State](acceptState, start), Set[Token](Lambda), Set[Transition]())
     }
 }
