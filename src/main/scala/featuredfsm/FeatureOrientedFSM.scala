@@ -34,11 +34,8 @@ final case class FeatureOrientedFSM(
     }
 
     def addCode(s: State, f: Token => Unit) = {
-        val modifiedState = new SimpleState(f::s.body)
-        val newStart = if (s == start) modifiedState else start
-        val newAccept = if (s == acceptState) modifiedState else acceptState
-        val newStates = states - s + modifiedState
-        FeatureOrientedFSM(newStart, newAccept, newStates, alphabet, transitions)
+        s.body = f::s.body
+        this
     }
 
     def insertFsm(s: State, fsm: FeatureOrientedFSM) = {

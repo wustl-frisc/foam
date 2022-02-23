@@ -2,14 +2,17 @@ package `scalaclient`
 import fsm._
 import featuredfsm._
 
+// Currently accpts lists of digits, lowercase letters
 object Tokenizer {
 
     var token: String = "Value: "
 
     var fsm = FeatureOrientedFSM.initiliaze()
-    fsm = fsm.addCode(fsm.start, (x) => {println("Start")})
-    fsm = fsm.addCode(fsm.acceptState, (x) => {println("Accept")})
-    fsm = fsm.addTransition(new Transition(fsm.start, Lambda, fsm.acceptState))
+    // fsm = fsm.addCode(fsm.start, (x) => {println("Start")})
+    // fsm = fsm.addCode(fsm.acceptState, (x) => {println("Accept")})
+
+    // THIS BREAKS SCALA ACCEPT() METHOD
+    // fsm = fsm.addTransition(new Transition(fsm.start, Lambda, fsm.acceptState))
 
     val zero = new SimpleState()
     val hex = new SimpleState()
@@ -23,6 +26,9 @@ object Tokenizer {
             )
         })
     }
+    fsm = fsm.addCode(fsm.start, (x) => {
+        token = "Value: "
+    })
     fsm = fsm.addCode(fsm.acceptState, (x) => {
         println(token)
     })
@@ -55,6 +61,7 @@ object Tokenizer {
 
     // From zero
     fsm = fsm.addTransition(Transition(zero, Character('X'), hex))
+    fsm = fsm.addTransition(Transition(zero, Character('x'), hex))
     for (i <- 0 to 9) {
         fsm = fsm.addTransition(Transition(zero, Character((48+i).toChar), number))             // '0' + i
     }
