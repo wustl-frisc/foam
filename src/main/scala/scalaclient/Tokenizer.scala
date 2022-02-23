@@ -5,14 +5,9 @@ import featuredfsm._
 // Currently accpts lists of digits, lowercase letters
 object Tokenizer {
 
-    var token: String = "Value: "
+    var token: String = ""
 
     var fsm = FeatureOrientedFSM.initiliaze()
-    // fsm = fsm.addCode(fsm.start, (x) => {println("Start")})
-    // fsm = fsm.addCode(fsm.acceptState, (x) => {println("Accept")})
-
-    // THIS BREAKS SCALA ACCEPT() METHOD
-    // fsm = fsm.addTransition(new Transition(fsm.start, Lambda, fsm.acceptState))
 
     val zero = new SimpleState()
     val hex = new SimpleState()
@@ -27,10 +22,7 @@ object Tokenizer {
         })
     }
     fsm = fsm.addCode(fsm.start, (x) => {
-        token = "Value: "
-    })
-    fsm = fsm.addCode(fsm.acceptState, (x) => {
-        println(token)
+        token = ""
     })
 
     val acceptNumber = new SimpleState()
@@ -44,47 +36,47 @@ object Tokenizer {
     for (state <- preAcceptStates) {
         fsm = fsm.addTransition(Transition(state, Lambda, fsm.acceptState))
     }
-    fsm = fsm.addCode(acceptNumber, (x) => {println("Found a number value")})
-    fsm = fsm.addCode(acceptHex, (x) => {println("Found a hexadecimal value")})
-    fsm = fsm.addCode(acceptVariable, (x) => {println("Found a variable")})
+    fsm = fsm.addCode(acceptNumber, (x) => {println("Found a number value: " + token.toInt)})
+    fsm = fsm.addCode(acceptHex, (x) => {println("Found a hexadecimal value: " + token)})
+    fsm = fsm.addCode(acceptVariable, (x) => {println("Found a variable: " + token)})
 
 
 
     // From start
     fsm = fsm.addTransition(Transition(fsm.start, Character('0'), zero))
     for (i <- 0 to 8) {
-        fsm = fsm.addTransition((Transition(fsm.start, Character((49+i).toChar), number)))      // '1' + i
+        fsm = fsm.addTransition((Transition(fsm.start, Character((49+i).toChar), number)))      // '1' to '9'
     }
     for (i <- 0 to 25) {
-        fsm = fsm.addTransition((Transition(fsm.start, Character((97+i).toChar), variable)))    // 'a' + i
+        fsm = fsm.addTransition((Transition(fsm.start, Character((97+i).toChar), variable)))    // 'a' to 'z'
     }
 
     // From zero
     fsm = fsm.addTransition(Transition(zero, Character('X'), hex))
     fsm = fsm.addTransition(Transition(zero, Character('x'), hex))
     for (i <- 0 to 9) {
-        fsm = fsm.addTransition(Transition(zero, Character((48+i).toChar), number))             // '0' + i
+        fsm = fsm.addTransition(Transition(zero, Character((48+i).toChar), number))             // '0' to '9'
     }
 
     // From hex
     for (i <- 0 to 9) {
-        fsm = fsm.addTransition(Transition(hex, Character((48+i).toChar), hex))                 // '0' + i
+        fsm = fsm.addTransition(Transition(hex, Character((48+i).toChar), hex))                 // '0' to '9'
     }
     for (i <- 0 to 5) { 
-        fsm = fsm.addTransition(Transition(hex, Character((65+i).toChar), hex))                 // 'A' + i
+        fsm = fsm.addTransition(Transition(hex, Character((65+i).toChar), hex))                 // 'A' to 'F'
     }
 
     // From number
     for (i <- 0 to 9) {
-        fsm = fsm.addTransition(Transition(number, Character((48+i).toChar), number))           // '0' + i
+        fsm = fsm.addTransition(Transition(number, Character((48+i).toChar), number))           // '0' to '9'
     }
 
     // From variable
     for (i <- 0 to 9) {
-        fsm = fsm.addTransition(Transition(variable, Character((48+i).toChar), variable))       // '0' + i
+        fsm = fsm.addTransition(Transition(variable, Character((48+i).toChar), variable))       // '0' to '9'
     }
     for (i <- 0 to 25) {
-        fsm = fsm.addTransition((Transition(variable, Character((97+i).toChar), variable)))     // 'a' + i
+        fsm = fsm.addTransition((Transition(variable, Character((97+i).toChar), variable)))     // 'a' to 'z'
     }
 
 }

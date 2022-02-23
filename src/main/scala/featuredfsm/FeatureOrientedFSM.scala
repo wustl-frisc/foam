@@ -63,13 +63,13 @@ final case class FeatureOrientedFSM(
     }
 
     // For purely example
-    def accept(input: Iterable[Token]): Set[State] = {
+    def accept(input: List[Token]): Set[State] = {
         start.executeCode(Lambda)
-        acceptHelper(input.iterator, start)
+        acceptHelper(input, start)
     }
 
-    private def acceptHelper(input: Iterator[Token], s: State): Set[State] = {
-        val token = if (input.hasNext) input.next() else Lambda
+    private def acceptHelper(input: List[Token], s: State): Set[State] = {
+        val token = if (input.length > 0) input.head else Lambda
         var finalStates = Set[State]()
         for (t <- transitions) {
             if (t.source == s) {
@@ -78,7 +78,7 @@ final case class FeatureOrientedFSM(
                     finalStates = finalStates ++ acceptHelper(input, t.destination)
                 } else if (t.token == token) {
                     t.destination.executeCode(token)
-                    finalStates = finalStates ++ acceptHelper(input, t.destination)
+                    finalStates = finalStates ++ acceptHelper(input.tail, t.destination)
                 }
             }
         }
