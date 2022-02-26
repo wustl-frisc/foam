@@ -33,11 +33,6 @@ final case class FeatureOrientedFSM(
         FeatureOrientedFSM(start, acceptState, states, newAlphabet, newTransitions)
     }
 
-    def addCode(s: State, f: Token => Unit) = {
-        s.body = f::s.body
-        this
-    }
-
     def insertFsm(s: State, fsm: FeatureOrientedFSM) = {
         // Add s to machine if needed
         var newStates = states + s
@@ -91,9 +86,7 @@ final case class FeatureOrientedFSM(
 }
 
 object FeatureOrientedFSM {
-    def initiliaze(): FeatureOrientedFSM = {
-        val start = new SimpleState()
-        val acceptState = new SimpleState()
-        FeatureOrientedFSM(start, acceptState, Set[State](acceptState, start), Set[Token](Lambda), Set[Transition]())
+    def initiliaze(start: State, accept: State): FeatureOrientedFSM = {
+        FeatureOrientedFSM(start, accept, Set[State](accept, start), Set[Token](Lambda), Set[Transition]())
     }
 }

@@ -1,12 +1,22 @@
 package `featuredfsm`
 import fsm._
 
-class SimpleState(var body: List[Token=>Unit] = List[Token => Unit]()) extends State {
+private final case class SimpleState(private val id: Int) extends State {
 
     override def executeCode(token: Token) = {
-        for (f <- body.reverseIterator) {
-            f(token)
-        }
+        CodeManager.signal(this, token)
     }
+
+}
+
+class SimpleStateFactory() {
+
+    private var stateCount = 0;
+
+    def makeState(): State = {
+        stateCount += 1
+        SimpleState(stateCount - 1)
+    }
+
 
 }

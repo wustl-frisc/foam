@@ -7,27 +7,31 @@ object Tokenizer {
 
     var token: String = ""
 
-    var fsm = FeatureOrientedFSM.initiliaze()
+    val factory = new SimpleStateFactory();
 
-    val zero = new SimpleState()
-    val hex = new SimpleState()
-    val number = new SimpleState()
-    val variable = new SimpleState()
-    val normalStates = Set[State](fsm.start, zero, hex, number, variable)
+    val start = factory.makeState()
+    val acceptState = factory.makeState()
+    var fsm = FeatureOrientedFSM.initiliaze(start, acceptState)
+
+    val zero = factory.makeState()
+    val hex = factory.makeState()
+    val number = factory.makeState()
+    val variable = factory.makeState()
+    val normalStates = Set[State](zero, hex, number, variable)
     for (state <- normalStates) {
-        fsm = fsm.addCode(state, (x) => {
+        CodeManager.addCode(state, (x) => {
             token += (
                 if (x == Lambda) "" else x
             )
         })
     }
-    fsm = fsm.addCode(fsm.start, (x) => {
+    CodeManager.addCode(start, (x) => {             // Adding code to start state
         token = ""
     })
 
-    val acceptNumber = new SimpleState()
-    val acceptHex = new SimpleState()
-    val acceptVariable = new SimpleState()
+    val acceptNumber = factory.makeState()
+    val acceptHex = factory.makeState()
+    val acceptVariable = factory.makeState()
     val preAcceptStates = Set[State](acceptNumber, acceptHex, acceptVariable)
     fsm = fsm.addTransition(Transition(zero, Character(' '), acceptNumber))
     fsm = fsm.addTransition(Transition(number, Character(' '), acceptNumber))
@@ -36,9 +40,9 @@ object Tokenizer {
     for (state <- preAcceptStates) {
         fsm = fsm.addTransition(Transition(state, Lambda, fsm.acceptState))
     }
-    fsm = fsm.addCode(acceptNumber, (x) => {println("Found a number value: " + token.toInt)})
-    fsm = fsm.addCode(acceptHex, (x) => {println("Found a hexadecimal value: " + token)})
-    fsm = fsm.addCode(acceptVariable, (x) => {println("Found a variable: " + token)})
+    CodeManager.addCode(acceptNumber, (x) => {println("Found a number value: " + token.toInt)})
+    CodeManager.addCode(acceptHex, (x) => {println("Found a hexadecimal value: " + token)})
+    CodeManager.addCode(acceptVariable, (x) => {println("Found a variable: " + token)})
 
 
 
@@ -80,33 +84,3 @@ object Tokenizer {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // def construct(fsm: FeatureOrientedFSM, list: List[Unit => FeatureOrientedFSM]) = {
-    //     var x = fsm
-    //     for (f <- list) {
-    //         x = f(x)
-    //     }
-    //     x
-    // }
