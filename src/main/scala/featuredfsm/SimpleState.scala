@@ -15,7 +15,7 @@ class SimpleStateFactory() {
 
     def makeState(): State = {
         stateCount += 1
-        SimpleState(stateCount - 1)
+        SimpleState(stateCount)
     }
 
 
