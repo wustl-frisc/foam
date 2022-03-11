@@ -1,7 +1,7 @@
 package `featuredfsm`
 import fsm._
 
-private final case class SimpleState(private val id: Int) extends State {
+private final case class SimpleState(private val id: Int, private val name: String) extends State {
 
     override def executeCode(token: Token) = {
         CodeManager.signal(this, token)
@@ -9,13 +9,13 @@ private final case class SimpleState(private val id: Int) extends State {
 
 }
 
-class SimpleStateFactory() {
+object SimpleStateFactory {
 
     private var stateCount = 0;
 
-    def makeState(): State = {
+    def apply(name: String): State = {
         stateCount += 1
-        SimpleState(stateCount)
+        SimpleState(stateCount, name)
     }
 
 
