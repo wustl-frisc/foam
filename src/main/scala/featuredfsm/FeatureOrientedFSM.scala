@@ -14,16 +14,16 @@ final case class FeatureOrientedFSM private (
 
     def addToken(t: Token) = if(alphabet contains t) {
         this
-      } else {
-        val newAlphabet = alphabet + t
+    } else {
+      val newAlphabet = alphabet + t
 
-        //construct a new transition for each existing state to the error state on this token
-        val errorTransitions = for (s <- states) yield Transition(s, t, error)
+      //construct a new transition for each existing state to the error state on this token
+      val errorTransitions = for (s <- states) yield Transition(s, t, error)
 
-        val newTransitions = errorTransitions ++ transitions
+      val newTransitions = errorTransitions ++ transitions
 
-        FeatureOrientedFSM(start, acceptState, error, states, newAlphabet, newTransitions)
-      }
+      FeatureOrientedFSM(start, acceptState, error, states, newAlphabet, newTransitions)
+    }
 
     def addState(s: State) = if(states contains s) {
       this
@@ -38,7 +38,7 @@ final case class FeatureOrientedFSM private (
       FeatureOrientedFSM(start, acceptState, error, newStates, alphabet, newTransitions)
     }
 
-    def addTransition(t: Transition) = if((alphabet contains t.token) &&
+    def addTransition(t: Transition) = if(((alphabet + Lambda) contains t.token) &&
       (states contains t.source) && (states contains t.destination)) {
       val newTransitions = transitions + t
       FeatureOrientedFSM(start, acceptState, error, states, alphabet, newTransitions)
@@ -86,12 +86,12 @@ final case class FeatureOrientedFSM private (
     }
 
     private def executeHelper(input: List[Token], s: State): Set[State] = {
-        val token = if (input.length > 0) input.head else Lambda
-        var finalStates = Set[State]()
-        println(s)
-        println(token)
-        println(input)
-        if(s == acceptState) println("Accept!")
+      val token = if (input.length > 0) input.head else Lambda
+      var finalStates = Set[State]()
+
+      if(input.length == 0 && s == acceptState) {
+        finalStates + s
+      } else {
         for (t <- transitions) {
             if (t.source == s) {
                 if (t.token.isLamda) {
@@ -107,8 +107,8 @@ final case class FeatureOrientedFSM private (
             finalStates += s
         }
         finalStates
+      }
     }
-
 }
 
 object FeatureOrientedFSM {
