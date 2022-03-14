@@ -1,4 +1,4 @@
-package `featuredfsm`
+package featuredfsm
 import fsm._
 
 final case class FeatureOrientedFSM private (
@@ -7,7 +7,8 @@ final case class FeatureOrientedFSM private (
     val error: State,
     val states: Set[State],
     val alphabet: Set[Token],
-    val transitions: Set[Transition]
+    val transitions: Set[Transition],
+    val nameMap: Map[String, State]
 ) extends FSM {
 
     override def accept: Set[State] = Set[State](acceptState)
@@ -22,26 +23,27 @@ final case class FeatureOrientedFSM private (
 
       val newTransitions = errorTransitions ++ transitions
 
-      FeatureOrientedFSM(start, acceptState, error, states, newAlphabet, newTransitions)
+      FeatureOrientedFSM(start, acceptState, error, states, newAlphabet, newTransitions, nameMap)
     }
 
-    def addState(s: State) = if(states contains s) {
+    def addState(s: State, name: String) = if((states contains s) || (nameMap contains name)) {
       this
     } else {
       val newStates = states + s
+      val newNameMap = nameMap + (name -> s)
 
       //construct a new transition for each token from this state to the error state
       val errorTransitions = for(t <- alphabet) yield Transition(s, t, error)
 
       val newTransitions = errorTransitions ++ transitions
 
-      FeatureOrientedFSM(start, acceptState, error, newStates, alphabet, newTransitions)
+      FeatureOrientedFSM(start, acceptState, error, newStates, alphabet, newTransitions, newNameMap)
     }
 
     def addTransition(t: Transition) = if(((alphabet + Lambda) contains t.token) &&
       (states contains t.source) && (states contains t.destination)) {
       val newTransitions = transitions + t
-      FeatureOrientedFSM(start, acceptState, error, states, alphabet, newTransitions)
+      FeatureOrientedFSM(start, acceptState, error, states, alphabet, newTransitions, nameMap)
     } else {
       this
     }
@@ -50,10 +52,10 @@ final case class FeatureOrientedFSM private (
       this
     } else {
       val newTransitions = transitions - t
-      FeatureOrientedFSM(start, acceptState, error, states, alphabet, newTransitions)
+      FeatureOrientedFSM(start, acceptState, error, states, alphabet, newTransitions, nameMap)
     }
 
-    def insertFsm(s: State, fsm: FeatureOrientedFSM) = {
+    /* def insertFsm(s: State, fsm: FeatureOrientedFSM) = {
         // Add s to machine if needed
         var newStates = states + s
 
@@ -75,7 +77,7 @@ final case class FeatureOrientedFSM private (
         val newAlphabet = alphabet ++ fsm.alphabet
 
         FeatureOrientedFSM(start, acceptState, error, newStates, newAlphabet, newTransitions)
-    }
+    } */
 
     // For purely example
     def execute(input: List[Token]): Set[State] = {
@@ -113,6 +115,7 @@ final case class FeatureOrientedFSM private (
 
 object FeatureOrientedFSM {
     def apply(start: State, accept: State, error: State): FeatureOrientedFSM = {
-        FeatureOrientedFSM(start, accept, error, Set[State](accept, start, error), Set[Token](), Set[Transition]())
+        FeatureOrientedFSM(start, accept, error, Set[State](accept, start, error),
+          Set[Token](), Set[Transition](), Map[String, State]("start" -> start, "accept" -> accept, "error" -> error))
     }
 }

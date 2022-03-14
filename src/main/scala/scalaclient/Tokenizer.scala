@@ -1,28 +1,29 @@
 package `scalaclient`
 import fsm._
 import featuredfsm._
+import aspects._
 
 // Currently accpts lists of digits, lowercase letters
 object Tokenizer {
 
     var token: String = ""
 
-    val start = SimpleStateFactory("start")
-    val acceptState = SimpleStateFactory("accept")
-    val error = SimpleStateFactory("error")
-    var fsm = FeatureOrientedFSM(start, acceptState, error)
+    val start = SimpleStateFactory()
+    val acceptState = SimpleStateFactory()
+    val error = SimpleStateFactory()
+    implicit var fsm = FeatureOrientedFSM(start, acceptState, error)
 
-    val zero = SimpleStateFactory("zero")
-    fsm = fsm.addState(zero)
+    val zero = SimpleStateFactory()
+    fsm = fsm.addState(zero, "zero")
 
-    val hex = SimpleStateFactory("hex")
-    fsm = fsm.addState(hex)
+    val hex = SimpleStateFactory()
+    fsm = fsm.addState(hex, "hex")
 
-    val number = SimpleStateFactory("number")
-    fsm = fsm.addState(number)
+    val number = SimpleStateFactory()
+    fsm = fsm.addState(number, "number")
 
-    val variable = SimpleStateFactory("variable")
-    fsm = fsm.addState(variable)
+    val variable = SimpleStateFactory()
+    fsm = fsm.addState(variable, "variable")
 
     val normalStates = Set[State](zero, hex, number, variable)
     for (state <- normalStates) {
@@ -36,14 +37,14 @@ object Tokenizer {
         token = ""
     })
 
-    val acceptNumber = SimpleStateFactory("acceptNumber")
-    fsm = fsm.addState(acceptNumber)
+    val acceptNumber = SimpleStateFactory()
+    fsm = fsm.addState(acceptNumber, "acceptNumber")
 
-    val acceptHex = SimpleStateFactory("acceptHex")
-    fsm = fsm.addState(acceptHex)
+    val acceptHex = SimpleStateFactory()
+    fsm = fsm.addState(acceptHex, "acceptHex")
 
-    val acceptVariable = SimpleStateFactory("acceptVariable")
-    fsm = fsm.addState(acceptVariable)
+    val acceptVariable = SimpleStateFactory()
+    fsm = fsm.addState(acceptVariable, "acceptVariable")
 
     val spaceToken = Character(' ')
     fsm = fsm.addToken(spaceToken)
@@ -127,5 +128,4 @@ object Tokenizer {
         fsm = fsm.removeTransition(Transition(variable, t, fsm.error))
         fsm = fsm.addTransition((Transition(variable, t, variable)))     // 'a' to 'z'
     })
-
 }
