@@ -14,5 +14,4 @@ object Main extends App {
     println("\n")
     tokenizer.execute(List[Token](Character('x'), Character('0'), Character('1'), Character('2'), Character(' ')))
     println("\n\n")
-
 }
