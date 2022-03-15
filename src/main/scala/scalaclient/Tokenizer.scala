@@ -1,4 +1,4 @@
-package `scalaclient`
+package scalaclient
 import fsm._
 import featuredfsm._
 import aspects._
@@ -49,20 +49,16 @@ object Tokenizer {
     val spaceToken = Character(' ')
     fsm = fsm.addToken(spaceToken)
     val preAcceptStates = Set[State](acceptNumber, acceptHex, acceptVariable)
-    fsm = fsm.removeTransition(Transition(zero, spaceToken, fsm.error))
-    fsm = fsm.addTransition(Transition(zero, spaceToken, acceptNumber))
+    fsm = fsm.addTransition((zero, spaceToken), acceptNumber)
 
-    fsm = fsm.removeTransition(Transition(number, spaceToken, fsm.error))
-    fsm = fsm.addTransition(Transition(number, spaceToken, acceptNumber))
+    fsm = fsm.addTransition((number, spaceToken), acceptNumber)
 
-    fsm = fsm.removeTransition(Transition(hex, spaceToken, fsm.error))
-    fsm = fsm.addTransition(Transition(hex, spaceToken, acceptHex))
+    fsm = fsm.addTransition((hex, spaceToken), acceptHex)
 
-    fsm = fsm.removeTransition(Transition(variable, spaceToken, fsm.error))
-    fsm = fsm.addTransition(Transition(variable, spaceToken, acceptVariable))
+    fsm = fsm.addTransition((variable, spaceToken), acceptVariable)
+
     for (state <- preAcceptStates) {
-        fsm = fsm.removeTransition(Transition(state, Lambda, fsm.error))
-        fsm = fsm.addTransition(Transition(state, Lambda, fsm.acceptState))
+        fsm = fsm.addTransition((state, Lambda), fsm.acceptState)
     }
     CodeManager.addCode(acceptNumber, (x) => {println("Found a number value: " + token.toInt)})
     CodeManager.addCode(acceptHex, (x) => {println("Found a hexadecimal value: " + token)})
@@ -81,51 +77,40 @@ object Tokenizer {
     })
 
     // From start
-    fsm = fsm.removeTransition(Transition(zero, zeroToken, fsm.error))
-    fsm = fsm.addTransition(Transition(fsm.start, zeroToken, zero))
+    fsm = fsm.addTransition((fsm.start, zeroToken), zero)
     oneToNineTokens foreach (t => {
-        fsm = fsm.removeTransition(Transition(fsm.start, t, fsm.error))
-        fsm = fsm.addTransition(Transition(fsm.start, t, number)) // '1' to '9'
+        fsm = fsm.addTransition((fsm.start, t), number) // '1' to '9'
     })
     aToZTokens foreach (t => {
-        fsm = fsm.removeTransition(Transition(fsm.start, t, fsm.error))
-        fsm = fsm.addTransition(Transition(fsm.start, t, variable))    // 'a' to 'z'
+        fsm = fsm.addTransition((fsm.start, t), variable)    // 'a' to 'z'
     })
 
     // From zero
-    fsm = fsm.removeTransition(Transition(zero, capitalCaseXToken, fsm.error))
-    fsm = fsm.addTransition(Transition(zero, capitalCaseXToken, hex))
+    fsm = fsm.addTransition((zero, capitalCaseXToken), hex)
 
-    fsm = fsm.removeTransition(Transition(zero, lowerCaseXToken, fsm.error))
-    fsm = fsm.addTransition(Transition(zero, lowerCaseXToken, hex))
+    fsm = fsm.addTransition((zero, lowerCaseXToken), hex)
     zeroToNineTokens foreach (t => {
-        fsm = fsm.removeTransition(Transition(zero, t, fsm.error))
-        fsm = fsm.addTransition(Transition(zero, t, number))             // '0' to '9'
+        fsm = fsm.addTransition((zero, t), number)             // '0' to '9'
     })
 
     // From hex
     zeroToNineTokens foreach (t => {
-        fsm = fsm.removeTransition(Transition(hex, t, fsm.error))
-        fsm = fsm.addTransition(Transition(hex, t, hex))                 // '0' to '9'
+        fsm = fsm.addTransition((hex, t), hex)                 // '0' to '9'
     })
     hexTokens foreach (t => {
-        fsm = fsm.removeTransition(Transition(hex, t, fsm.error))
-        fsm = fsm.addTransition(Transition(hex, t, hex))                 // 'A' to 'F'
+        fsm = fsm.addTransition((hex, t), hex)                 // 'A' to 'F'
     })
 
     // From number
     zeroToNineTokens foreach (t => {
-        fsm = fsm.removeTransition(Transition(number, t, fsm.error))
-        fsm = fsm.addTransition(Transition(number, t, number))           // '0' to '9'
+        fsm = fsm.addTransition((number, t), number)           // '0' to '9'
     })
 
     // From variable
     zeroToNineTokens foreach (t => {
-        fsm = fsm.removeTransition(Transition(variable, t, fsm.error))
-        fsm = fsm.addTransition(Transition(variable, t, variable))       // '0' to '9'
+        fsm = fsm.addTransition((variable, t), variable)       // '0' to '9'
     })
     aToZTokens foreach (t => {
-        fsm = fsm.removeTransition(Transition(variable, t, fsm.error))
-        fsm = fsm.addTransition((Transition(variable, t, variable)))     // 'a' to 'z'
+        fsm = fsm.addTransition((variable, t), variable)     // 'a' to 'z'
     })
 }

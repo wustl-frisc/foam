@@ -1,13 +1,11 @@
 package fsm
 
 trait FSM {
-
     def start: State
     def accept: Set[State]
     def states: Set[State]
     def alphabet: Set[Token]
-    def transitions: Set[Transition]
-    
+    def transitions: Map[(State, Token), Set[State]]
 }
 
 
