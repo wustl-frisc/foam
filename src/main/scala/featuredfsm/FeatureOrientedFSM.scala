@@ -4,7 +4,7 @@ import fsm._
 final case class FeatureOrientedFSM private (
     val start: State,
     val acceptState: State,
-    private val error: State,
+    val error: State,
     val states: Set[State],
     val alphabet: Set[Token],
     val transitions: Map[(State, Token), Set[State]],
