@@ -1,7 +1,7 @@
 package main
 import fsm._
 import featuredfsm._
-import scalaclient._
+import examples._
 
 object Main extends App {
 

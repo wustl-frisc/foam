@@ -1,4 +1,4 @@
-package scalaclient
+package examples
 import fsm._
 import featuredfsm._
 import aspects._
