@@ -9,7 +9,6 @@ object Emitter {
 
     val dot = new Digraph("finite_state_machine")
 
-    //dot.body += "concentrate=true"
     //dot.attr("node", Map("shape" -> "doublecircle"))
     dot.attr("node", Map("shape" -> "circle"))
 
@@ -17,9 +16,11 @@ object Emitter {
       val key = tm._1
       val destinationSet = tm._2
 
-      if(key._1 != fsm.error) dot.node(stateMap(key._1))
+      if((key._1 != fsm.error) || (key._1 == fsm.error && !excludeError)){
+        dot.node(stateMap(key._1))
+      }
 
-      if(!(destinationSet contains fsm.error)){
+      if(!(destinationSet contains fsm.error) || ((destinationSet contains fsm.error) && !excludeError)){
         destinationSet foreach (d => {
           dot.node(stateMap(d))
           dot.edge(stateMap(key._1), stateMap(d), label = key._2.toString)

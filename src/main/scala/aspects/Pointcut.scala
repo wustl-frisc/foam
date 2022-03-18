@@ -3,20 +3,21 @@ import featuredfsm._
 import fsm._
 
 import scala.util.matching.Regex
+import scala.reflect.ClassTag
 
 //use the factory pattern to create different pointcuts
 object Pointcut {
 
-  def byState(source: State)(implicit fsm: FeatureOrientedFSM) = {
-    for (t <- fsm.alphabet) yield ((source, t))
+  def byState[A <: Token : ClassTag](source: State)(implicit fsm: FeatureOrientedFSM) = {
+    for (t <- fsm.alphabet.collect{case t: A => t}) yield ((source, t))
   }
 
   def byState(source: Regex)(implicit fsm: FeatureOrientedFSM) = {
     for (t <- fsm.alphabet; s <- fsm.nameMap.filter(source matches _._1)) yield ((s._2, t))
   }
 
-  def byToken(token: Token)(implicit fsm: FeatureOrientedFSM) = {
-    for (s <- fsm.states) yield (s, token)
+  def byToken[A <: State : ClassTag](token: Token, fsm: FeatureOrientedFSM) = {
+    for (s <- fsm.states.collect{case s: A => s}) yield (s, token)
   }
 
   def byDestination(destination: State)(implicit fsm: FeatureOrientedFSM) = {
