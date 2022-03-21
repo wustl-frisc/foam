@@ -19,25 +19,11 @@ object AddCoin extends Aspect {
     //add the new value states to the FSM
     val statedFSM = newStates.foldLeft(tokenedFSM)((newFSM, s) => newFSM.addState(s, s.total.toString))
 
-    //Select all the keys containing our new token that have ValueStates
-    val tokenPointcut = Pointcut.byToken[ValueState](coin, statedFSM)
-
-    //Set the correct destination for each
-    val transitionedFSM = tokenPointcut.foldLeft(statedFSM)((newFSM, k) => {
-      if (k._1.total + coin.value <= threshold) {
-        val joinpoint = Set[(State, Token)](k)
-        val destination = Set[State](newFSM.nameMap((k._1.total + coin.value).toString))
-        SetUnion(joinpoint, destination, newFSM)
-      } else {
-        newFSM
-      }
-    })
-
     //Select all the keys for ValueStates that point to error
-    val destinationPointcut = Pointcut.byDestination[ValueState](fsm.error, transitionedFSM)
+    val destinationPointcut = Pointcut.byDestination[ValueState](fsm.error, statedFSM)
 
     //set the correct destination for each
-    val destinationedFSM = destinationPointcut.foldLeft(transitionedFSM)((newFSM, k) => {
+    val destinationedFSM = destinationPointcut.foldLeft(statedFSM)((newFSM, k) => {
       val state = k._1.asInstanceOf[ValueState]
       val token = k._2.asInstanceOf[Coin]
 
