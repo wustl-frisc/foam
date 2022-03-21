@@ -41,25 +41,22 @@ class ChiselFSM(f: FSM) extends Module {
     
     for (s <- f.states) {
         val index = stateMap.get(s).get
-        when(state === index.U) {
-            // state.executeCode()              // Does this need to be reworked??
+        when (state === index.U) {
+            // state.executeCode()              // Rework this?
             for (transition <- transitionMap.get(index).get) {
                 val tokenId = tokenMap.get(transition.token).get
                 when (io.in === tokenId.U) {
                     val newStateIndex = stateMap.get(transition.destination).get
                     state := newStateIndex.U
                 }
-
             }
-
         }
-
     }
 
     io.out := false.B
     for (s <- f.accept) {
         val index = stateMap.get(s).get
-        io.out := io.out | (state === index.U)
+        io.out := io.out || (state === index.U)
     }
 
 
