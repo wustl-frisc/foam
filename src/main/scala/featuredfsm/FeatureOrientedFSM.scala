@@ -87,6 +87,7 @@ final case class FeatureOrientedFSM private (
     start.executeCode
     val finalStates = executeHelper(input, start)
     if (finalStates contains acceptState) println("Execution Sucess!")
+    else println("Execution failed")
     finalStates
   }
 

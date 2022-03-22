@@ -6,15 +6,19 @@ import chisel3.experimental.ChiselEnum
 
 import scala.math._
 
- class ChiselFSM(f: FeatureOrientedFSM) extends Module {
+import fsm._
 
-    val numStates = f.states.size
-    val numTokens = f.alphabet.size
+ class ChiselFSM(fsm: FSM) extends Module {
+
+    val numStates = fsm.states.size
+    val numTokens = fsm.alphabet.size
 
     val statesWidth = ceil(log(numStates)/log(2)).toInt
-    val tokensWidth = ceil(log(numStates)/log(2)).toInt
+    val tokensWidth = ceil(log(numTokens)/log(2)).toInt
 
-    // ********************************************************************************************************************************* //
+    var i = 0;
+    val stateMap = fsm.states.map((state: State) => {i+= 1 ; (state, i)}).toMap
+    val tokenMap = fsm.alphabet.zipWithIndex
 
 
     val io = IO(new Bundle {
@@ -22,21 +26,25 @@ import scala.math._
         val out = Output(Bool())
     })
 
-    val state = RegInit(f.nameMap("start").asInstanceOf[SimpleState].id.U)
+    val stateRegister = RegInit(stateMap(fsm.start).U(statesWidth.W))
 
-    for (s <- f.states) {
-        when(s.asInstanceOf[SimpleState].id.U === state) {
-            s.executeCode
-            for ((t,i) <- f.alphabet.zipWithIndex) {
-              //TODO: This needs to be converted to a DFA first, right now it will produce mulitple assignments
-              for(d <- f.transitions(s, t)){
-                when (io.in === i.U) {
-                    state := d.asInstanceOf[SimpleState].id.U
+    for ((state, stateId) <- stateMap) {
+        when (stateId.U === stateRegister) {
+            state.executeCode
+            for ((token,index) <- tokenMap) {
+                // TODO: This needs to be converted to a DFA first, right now it will produce mulitple assignments
+                // when (io.in === index.U) {
+                //     stateRegister := stateMap(fsm.transitions(state, token)).U
+                // }
+                for (destination <- fsm.transitions(state, token)){
+                    when (io.in === index.U) {
+                        stateRegister := stateMap(destination).U
+                    }
                 }
-              }
             }
         }
     }
 
-    io.out := state === f.accept.asInstanceOf[SimpleState].id.U
+    // io.out := fsm.accept.map((state) => stateRegister === stateMap(state).U).reduce(_ || _)
+    io.out := fsm.accept.foldLeft(false.B)((prev, state) => prev || (stateRegister === stateMap(state).U))
 }
