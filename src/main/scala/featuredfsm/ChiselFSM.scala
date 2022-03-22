@@ -8,7 +8,7 @@ import scala.math._
 
 import fsm._
 
- class ChiselFSM(fsm: FSM) extends Module {
+class ChiselFSM(fsm: FSM) extends Module {
 
     val numStates = fsm.states.size
     val numTokens = fsm.alphabet.size

@@ -2,6 +2,7 @@ package main
 import fsm._
 import featuredfsm._
 import examples._
+import chisel3.stage.ChiselStage
 
 object Main extends App {
 
@@ -22,7 +23,8 @@ object Main extends App {
 
   // val dto = DetectTwoOnes.fsm
   // dto.execute(List[Token](Zero, One, Zero, One, Zero, One, One))
-
-  
+  // (new ChiselStage).emitVerilog(
+  //   new ChiselFSM(dto)
+  // )
 
 }

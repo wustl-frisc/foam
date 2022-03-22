@@ -125,7 +125,7 @@ object FeatureOrientedFSM {
       error,
       Set[State](accept, start, error),
       Set[Token](Lambda),
-      Map[(State, Token), Set[State]]((start, Lambda) -> Set[State](), (accept, Lambda) -> Set[State]()),
+      Map[(State, Token), Set[State]]((start, Lambda) -> Set[State](), (error, Lambda) -> Set[State](), (accept, Lambda) -> Set[State]()),
       Map[String, State]("start" -> start, "accept" -> accept, "error" -> error))
   }
 }
