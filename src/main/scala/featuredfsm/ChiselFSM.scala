@@ -26,7 +26,7 @@ import scala.math._
 
     for (s <- f.states) {
         when(s.asInstanceOf[SimpleState].id.U === state) {
-            // state.executeCode()              // Does this need to be reworked??
+            s.executeCode
             for ((t,i) <- f.alphabet.zipWithIndex) {
               //TODO: This needs to be converted to a DFA first, right now it will produce mulitple assignments
               for(d <- f.transitions(s, t)){

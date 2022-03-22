@@ -83,9 +83,8 @@ final case class FeatureOrientedFSM private (
         FeatureOrientedFSM(start, acceptState, error, newStates, newAlphabet, newTransitions)
     } */
 
-  // For purely example
   def execute(input: List[Token]): Set[State] = {
-    start.executeCode(Lambda)
+    start.executeCode
     val finalStates = executeHelper(input, start)
     if (finalStates contains acceptState) println("Execution Sucess!")
     finalStates
@@ -101,10 +100,10 @@ final case class FeatureOrientedFSM private (
       for (t <- alphabet) {
         for (d <- transitions((s, t))) {
           if (t.isLamda) {
-            d.executeCode(Lambda)
+            d.executeCode
             finalStates = finalStates ++ executeHelper(input, d)
           } else if (t == token) {
-            d.executeCode(token)
+            d.executeCode
             finalStates = finalStates ++ executeHelper(input.tail, d)
           }
         }

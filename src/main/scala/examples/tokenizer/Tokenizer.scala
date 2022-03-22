@@ -6,8 +6,6 @@ import aspects._
 // Currently accpts lists of digits, lowercase letters
 object Tokenizer {
 
-  var token: String = ""
-
   val start = SimpleStateFactory()
   val acceptState = SimpleStateFactory()
   val error = SimpleStateFactory()
@@ -25,6 +23,10 @@ object Tokenizer {
   val variable = SimpleStateFactory()
   fsm = fsm.addState(variable, "variable")
 
+  /* 
+  // No longer works when executeCode takes no parameters
+  var token: String = ""
+
   val normalStates = Set[State](zero, hex, number, variable)
   for (state <- normalStates) {
     CodeManager.addCode(state, (x) => {
@@ -35,6 +37,7 @@ object Tokenizer {
   CodeManager.addCode(start, (x) => { // Adding code to start state
     token = ""
   })
+  */
 
   val acceptNumber = SimpleStateFactory()
   fsm = fsm.addState(acceptNumber, "acceptNumber")
@@ -59,9 +62,9 @@ object Tokenizer {
   for (state <- preAcceptStates) {
     fsm = fsm.addTransition((state, Lambda), fsm.acceptState)
   }
-  CodeManager.addCode(acceptNumber, (x) => { println("Found a number value: " + token.toInt) })
-  CodeManager.addCode(acceptHex, (x) => { println("Found a hexadecimal value: " + token) })
-  CodeManager.addCode(acceptVariable, (x) => { println("Found a variable: " + token) })
+  CodeManager.addCode(acceptNumber, () => { println("Found a number value") })
+  CodeManager.addCode(acceptHex, () => { println("Found a hexadecimal value") })
+  CodeManager.addCode(acceptVariable, () => { println("Found a variable") })
 
   val zeroToken = Character('0')
   val capitalCaseXToken = Character('X')
