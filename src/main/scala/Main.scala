@@ -21,10 +21,10 @@ object Main extends App {
   // val vendFSM = VendingMachine()
   // vendFSM.execute(List[Token](Coin(5), Coin(25), Product(30, "Gum")))
 
-  // val dto = DetectTwoOnes.fsm
-  // dto.execute(List[Token](Zero, One, Zero, One, Zero, One, One))
-  // (new ChiselStage).emitVerilog(
-  //   new ChiselFSM(dto)
-  // )
+  val dto = DetectTwoOnes.fsm
+  dto.execute(List(Zero, One, Zero, One, Zero, One, Zero, Zero, Zero, One, One))
+  (new ChiselStage).emitVerilog(
+    new ChiselFSM(new ConvertedFSM(dto))
+  )
 
 }

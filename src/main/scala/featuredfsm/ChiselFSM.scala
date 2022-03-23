@@ -8,7 +8,7 @@ import scala.math._
 
 import fsm._
 
-class ChiselFSM(fsm: FSM) extends Module {
+class ChiselFSM(fsm: DFA) extends Module {
 
     val numStates = fsm.states.size
     val numTokens = fsm.alphabet.size
@@ -16,9 +16,8 @@ class ChiselFSM(fsm: FSM) extends Module {
     val statesWidth = ceil(log(numStates)/log(2)).toInt
     val tokensWidth = ceil(log(numTokens)/log(2)).toInt
 
-    var i = 0;
-    val stateMap = fsm.states.map((state: State) => {i+= 1 ; (state, i)}).toMap
-    val tokenMap = fsm.alphabet.zipWithIndex
+    val stateMap = fsm.states.zipWithIndex.toMap
+    val tokenMap = fsm.alphabet.zipWithIndex.toMap
 
 
     val io = IO(new Bundle {
@@ -31,16 +30,17 @@ class ChiselFSM(fsm: FSM) extends Module {
     for ((state, stateId) <- stateMap) {
         when (stateId.U === stateRegister) {
             state.executeCode
-            for ((token,index) <- tokenMap) {
+            val transitionsFromState = fsm.transitions.filter((transition) => state == transition._1._1)
+            for (((source,token), dest) <- transitionsFromState) {
                 // TODO: This needs to be converted to a DFA first, right now it will produce mulitple assignments
-                // when (io.in === index.U) {
-                //     stateRegister := stateMap(fsm.transitions(state, token)).U
-                // }
-                for (destination <- fsm.transitions(state, token)){
-                    when (io.in === index.U) {
-                        stateRegister := stateMap(destination).U
-                    }
+                when (io.in === tokenMap(token).U) {
+                    stateRegister := stateMap(fsm.transitions(state, token)).U
                 }
+                // for (destination <- fsm.transitions(state, token)){
+                //     when (io.in === index.U) {
+                //         stateRegister := stateMap(destination).U
+                //     }
+                // }
             }
         }
     }
