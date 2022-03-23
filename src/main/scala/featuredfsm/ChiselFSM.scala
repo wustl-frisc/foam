@@ -32,15 +32,9 @@ class ChiselFSM(fsm: DFA) extends Module {
             state.executeCode
             val transitionsFromState = fsm.transitions.filter((transition) => state == transition._1._1)
             for (((source,token), dest) <- transitionsFromState) {
-                // TODO: This needs to be converted to a DFA first, right now it will produce mulitple assignments
                 when (io.in === tokenMap(token).U) {
                     stateRegister := stateMap(fsm.transitions(state, token)).U
                 }
-                // for (destination <- fsm.transitions(state, token)){
-                //     when (io.in === index.U) {
-                //         stateRegister := stateMap(destination).U
-                //     }
-                // }
             }
         }
     }
