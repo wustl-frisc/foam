@@ -12,7 +12,7 @@ object VendingMachine {
     val fsm = FeatureOrientedFSM(ValueState(0), SimpleStateFactory(), SimpleStateFactory())
     val coinedFSM = coinSet.foldLeft(fsm)((newFSM, c) => { AddCoin(c, 100, newFSM) })
     val productedFSM = productSet.foldLeft(coinedFSM)((newFSM, p) => {AddProduct(p, newFSM)})
-    Emitter(productedFSM)
+    // Emitter(productedFSM)
     productedFSM
   }
 }

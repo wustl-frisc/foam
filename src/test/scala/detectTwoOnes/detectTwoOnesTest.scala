@@ -8,7 +8,9 @@ import chiseltest._
 import org.scalatest._
 import org.scalatest.flatspec.AnyFlatSpec
 
-class FSMTest extends AnyFlatSpec with ChiselScalatestTester {
+class DetectTwoOnesTest extends AnyFlatSpec with ChiselScalatestTester with FSMTest {
+
+    val fsm = DetectTwoOnes.fsm
 
     it should "Reject 0" in {
         testString("0", false)
@@ -51,16 +53,15 @@ class FSMTest extends AnyFlatSpec with ChiselScalatestTester {
     }
 
     def testString(s: String, outcome: Boolean) = {
-        val detectTwoOnes = DetectTwoOnes.fsm
-        test(new ChiselFSM(new ConvertedFSM(detectTwoOnes))) { dut => {
-            val tokenMap = dut.tokenMap
-            s.toCharArray.foreach( c => {
-                dut.io.in.poke(if (c=='1') tokenMap(One).U else tokenMap(Zero).U)
-                dut.clock.step()
-                // println(dut.stateRegister.peek().litValue)
-            })
-            dut.io.out.expect(outcome.B)
-        }}
+        implicit var inputList = List[Token]()
+        for (ch <- s.toCharArray.reverse) {
+            if (ch == '1') {
+                inputList = One::inputList
+            } else {
+                inputList = Zero::inputList
+            }
+        }
+        testInput(inputList, outcome)
     }
 
 }
