@@ -3,8 +3,8 @@ import fsm._
 
 private final case class SimpleState(val id: Int) extends State {
 
-    override def executeCode(token: Token) = {
-        CodeManager.signal(this, token)
+    override def executeCode = {
+        CodeManager.signal(this)
     }
 
 }

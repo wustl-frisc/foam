@@ -4,15 +4,15 @@ import os.stat
 
 object CodeManager {
 
-    var statesToFunctions = Map[State, Token => Unit]()
+    var statesToFunctions = Map[State, () => Unit]()
 
-    def signal(s: State, t: Token) = {
+    def signal(s: State) = {
         val f = statesToFunctions.get(s)
         if (f.isDefined)
-            f.get.apply(t)
+            f.get.apply()
     }
 
-    def addCode(s: State, f: Token => Unit) = {
+    def addCode(s: State, f: () => Unit) = {
         statesToFunctions += (s -> f)
     }
 
