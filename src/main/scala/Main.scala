@@ -18,6 +18,8 @@ object Main extends App {
   println("\n\n")
   */
 
+  VendingMachine()
+
   // val vendFSM = VendingMachine()
   // vendFSM.execute(List[Token](Coin(5), Coin(25), Product(30, "Gum")))
 

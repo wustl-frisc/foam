@@ -4,8 +4,8 @@ import featuredfsm._
 import fsm._
 import aspects._
 
-object AddProduct extends Aspect {
-  def apply(product: Product, fsm: FeatureOrientedFSM) = {
+class AddProduct (product: Product) extends Aspect {
+  def apply(fsm: FeatureOrientedFSM) = {
     //Add the new product token
     val tokenedFSM = fsm.addToken(product)
 

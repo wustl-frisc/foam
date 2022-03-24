@@ -4,8 +4,8 @@ import featuredfsm._
 import fsm._
 import aspects._
 
-object AddCoin extends Aspect {
-  def apply(coin: Coin, threshold: Int, fsm: FeatureOrientedFSM) = {
+class AddCoin(coin: Coin, threshold: Int) extends Aspect {
+  def apply(fsm: FeatureOrientedFSM) = {
 
     //Add the token
     val tokenedFSM = fsm.addToken(coin)

@@ -115,6 +115,12 @@ final case class FeatureOrientedFSM private (
       finalStates
     }
   }
+
+  def equals(otherFSM: FeatureOrientedFSM) = {
+    if (otherFSM.states.equals(this.states) &&
+      otherFSM.alphabet.equals(this.alphabet) &&
+      otherFSM.transitions.equals(this.transitions)) true else false
+  }
 }
 
 object FeatureOrientedFSM {
