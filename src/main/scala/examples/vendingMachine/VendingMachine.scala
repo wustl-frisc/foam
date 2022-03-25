@@ -19,8 +19,9 @@ object VendingMachine {
 
     val coinFeatures = for(c <- USCoinSet) yield (new AddCoin(c, 100))
     val productFeatures = for(p <- productSet) yield (new AddProduct(p))
+    val features = coinFeatures ++ productFeatures
 
-    val finalFSM = applyHelper(productFeatures ++ coinFeatures, fsm)
+    val finalFSM = applyHelper(features, fsm)
 
     Emitter(finalFSM)
     finalFSM

@@ -5,4 +5,5 @@ package featuredfsm
 package object aspects {
   type Pointcut = Set[TransitionKey]
   type FSMAspect = Aspect[FeatureOrientedFSM]
+  type FSMAdvice = Advice[Set[TransitionKey], FeatureOrientedFSM]
 }

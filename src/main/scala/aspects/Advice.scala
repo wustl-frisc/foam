@@ -3,6 +3,6 @@ package fsm
 package featuredfsm
 package aspects
 
-trait Aspect[T] {
-  def apply(base: T): T
+trait Advice[A, B] {
+  def apply(pointuct: A, base: B): B
 }

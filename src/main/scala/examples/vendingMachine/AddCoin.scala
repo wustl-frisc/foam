@@ -21,9 +21,8 @@ class AddCoin(coin: Coin, threshold: Int) extends FSMAspect {
     val statedFSM = newStates.foldLeft(tokenedFSM)((newFSM, s) => newFSM.addState(s, s.total.toString))
 
     //Select all the keys for ValueStates that point to error
-    val destinationPointcut = Pointcut.byDestination[ValueState](fsm.error, statedFSM)
+    val destinationPointcut = Pointcut.byDestination[ValueState, Coin](fsm.error, statedFSM)
 
-    //set the correct destination for each
     val destinationedFSM = destinationPointcut.foldLeft(statedFSM)((newFSM, k) => {
       val state = k._1.asInstanceOf[ValueState]
       val token = k._2.asInstanceOf[Coin]
@@ -31,7 +30,7 @@ class AddCoin(coin: Coin, threshold: Int) extends FSMAspect {
       if (state.total + token.value <= threshold) {
         val joinpoint = Set[TransitionKey](k)
         val destination = Set[State](newFSM.nameMap((state.total + token.value).toString))
-        SetUnion(joinpoint, destination, newFSM)
+        (new SetUnion(destination))(joinpoint, newFSM)
       } else {
         newFSM
       }

@@ -18,11 +18,11 @@ class AddProduct (product: Product) extends FSMAspect {
       if (k._1.total >= product.value) { //if we have enough money, go to accept
         val joinpoint = Set[TransitionKey](k)
         val destination = Set[State](newFSM.acceptState)
-        SetUnion(joinpoint, destination, newFSM)
+        (new SetUnion(destination))(joinpoint, newFSM)
       } else { //if we don't have enough money, try again
         val joinpoint = Set[TransitionKey](k)
         val destination = Set[State](k._1)
-        SetUnion(joinpoint, destination, newFSM)
+        (new SetUnion(destination))(joinpoint, newFSM)
       }
     })
 

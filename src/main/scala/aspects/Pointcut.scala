@@ -21,9 +21,12 @@ object Pointcut {
     for (s <- fsm.states.collect{case s: A => s}) yield (s, token)
   }
 
-  def byDestination[A <: State : ClassTag](destination: State, fsm: FeatureOrientedFSM) = {
+  def byDestination[A <: State : ClassTag, B <: Token : ClassTag](destination: State, fsm: FeatureOrientedFSM) = {
     fsm.transitions.foldLeft(Set[TransitionKey]())((keySet, map) => {(map._1)._1 match {
-        case state: A if(map._2 contains destination) => keySet + map._1
+        case state: A => (map._1)._2 match {
+          case token: B if(map._2 contains destination) => keySet + map._1
+          case _ => keySet
+        }
         case _ => keySet
       }
     })
