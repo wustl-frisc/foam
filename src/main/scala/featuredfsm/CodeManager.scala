@@ -1,5 +1,6 @@
-package featuredfsm
+package fsm.featuredfsm
 import fsm._
+
 import os.stat
 
 object CodeManager {

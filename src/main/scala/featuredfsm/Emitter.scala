@@ -1,4 +1,5 @@
-package featuredfsm
+package fsm.featuredfsm
+import fsm._
 
 import scala.collection.mutable.Map
 import com.liangdp.graphviz4s.Digraph

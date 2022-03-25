@@ -1,4 +1,4 @@
-package examples
+package fsm.examples
 
 import fsm._
 

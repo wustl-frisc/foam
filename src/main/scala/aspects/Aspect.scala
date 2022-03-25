@@ -1,6 +1,7 @@
-package aspects
+package fsm.aspects
 
-import featuredfsm._
+import fsm._
+import fsm.featuredfsm._
 
 trait Aspect {
   def apply(fsm: FeatureOrientedFSM): FeatureOrientedFSM

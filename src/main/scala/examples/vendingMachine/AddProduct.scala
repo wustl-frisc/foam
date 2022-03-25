@@ -1,8 +1,8 @@
-package examples
+package fsm.examples
 
-import featuredfsm._
 import fsm._
-import aspects._
+import fsm.featuredfsm._
+import fsm.aspects._
 
 class AddProduct (product: Product) extends Aspect {
   def apply(fsm: FeatureOrientedFSM) = {

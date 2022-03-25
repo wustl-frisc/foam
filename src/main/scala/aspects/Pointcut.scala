@@ -1,6 +1,7 @@
-package aspects
-import featuredfsm._
+package fsm.aspects
+
 import fsm._
+import fsm.featuredfsm._
 
 import scala.util.matching.Regex
 import scala.reflect.ClassTag
@@ -21,7 +22,7 @@ object Pointcut {
   }
 
   def byDestination[A <: State : ClassTag](destination: State, fsm: FeatureOrientedFSM) = {
-    fsm.transitions.foldLeft(Set[(State, Token)]())((keySet, map) => {(map._1)._1 match {
+    fsm.transitions.foldLeft(Set[TransitionKey]())((keySet, map) => {(map._1)._1 match {
         case state: A if(map._2 contains destination) => keySet + map._1
         case _ => keySet
       }
@@ -31,7 +32,7 @@ object Pointcut {
   def byDestination(destination: Regex)(implicit fsm: FeatureOrientedFSM) = {
     val stateSet = (for (s <- fsm.nameMap.filter(destination matches _._1)) yield (s._2)).toSet
 
-    fsm.transitions.foldLeft(Set[(State, Token)]())((keySet, m) => {
+    fsm.transitions.foldLeft(Set[TransitionKey]())((keySet, m) => {
       if (!(m._2 & stateSet).isEmpty) {
         keySet + m._1
       } else {

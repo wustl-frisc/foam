@@ -1,4 +1,4 @@
-package featuredfsm
+package fsm.featuredfsm
 import fsm._
 
 final case class FeatureOrientedFSM private (
@@ -7,7 +7,7 @@ final case class FeatureOrientedFSM private (
   val error: State,
   val states: Set[State],
   val alphabet: Set[Token],
-  val transitions: Map[(State, Token), Set[State]],
+  val transitions: Map[TransitionKey, Set[State]],
   val nameMap: Map[String, State]) extends FSM {
 
   override def accept: Set[State] = Set[State](acceptState)
@@ -36,7 +36,7 @@ final case class FeatureOrientedFSM private (
     FeatureOrientedFSM(start, acceptState, error, states + s, alphabet, transitions ++ newTransitions.toMap, nameMap + (name -> s))
   }
 
-  def addTransition(k: (State, Token), d: State) = if (((alphabet + Lambda) contains k._2) &&
+  def addTransition(k: TransitionKey, d: State) = if (((alphabet + Lambda) contains k._2) &&
     (states contains k._1) && (states contains d)) {
 
     if (transitions(k) contains error) { //remove the error state if it exists
@@ -48,7 +48,7 @@ final case class FeatureOrientedFSM private (
     this
   }
 
-  def removeTransition(k: (State, Token), d: State) = if (!(transitions contains k)) {
+  def removeTransition(k: TransitionKey, d: State) = if (!(transitions contains k)) {
     this
   } else {
     //if removing the state empties the destination list, then put the error state back in
@@ -131,7 +131,7 @@ object FeatureOrientedFSM {
       error,
       Set[State](accept, start, error),
       Set[Token](Lambda),
-      Map[(State, Token), Set[State]]((start, Lambda) -> Set[State](), (error, Lambda) -> Set[State](), (accept, Lambda) -> Set[State]()),
+      Map[TransitionKey, Set[State]]((start, Lambda) -> Set[State](), (error, Lambda) -> Set[State](), (accept, Lambda) -> Set[State]()),
       Map[String, State]("start" -> start, "accept" -> accept, "error" -> error))
   }
 }

@@ -1,4 +1,5 @@
-package featuredfsm
+package fsm.featuredfsm
+import fsm._
 
 import chisel3._
 import chisel3.util.{switch, is}
