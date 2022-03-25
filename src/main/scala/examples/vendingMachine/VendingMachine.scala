@@ -21,15 +21,9 @@ object VendingMachine {
     val productFeatures = for(p <- productSet) yield (new AddProduct(p))
     val features = coinFeatures ++ productFeatures
 
-    val finalFSM = applyHelper(features, fsm)
+    val finalFSM = Weaver[FeatureOrientedFSM](features, fsm)
 
     Emitter(finalFSM)
     finalFSM
-  }
-
-  private def applyHelper(aspectSet: Set[FSMAspect], fsm: FeatureOrientedFSM): FeatureOrientedFSM = {
-    val finalFSM = aspectSet.foldLeft(fsm)((newFSM, a) => a(newFSM))
-    if(!finalFSM.equals(fsm)) applyHelper(aspectSet, finalFSM)
-    else finalFSM
   }
 }
