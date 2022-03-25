@@ -1,5 +1,6 @@
-package fsm.featuredfsm
-import fsm._
+package edu.wustl.sbs
+package fsm
+package featuredfsm
 
 private final case class SimpleState(val id: Int) extends State {
 

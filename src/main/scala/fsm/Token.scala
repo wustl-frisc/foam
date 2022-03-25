@@ -1,3 +1,4 @@
+package edu.wustl.sbs
 package fsm
 
 trait Token {

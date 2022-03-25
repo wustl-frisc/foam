@@ -1,10 +1,11 @@
-package fsm.examples
+package edu.wustl.sbs
+package examples
 
 import fsm._
 import fsm.featuredfsm._
-import fsm.aspects._
+import fsm.featuredfsm.aspects._
 
-class AddCoin(coin: Coin, threshold: Int) extends Aspect {
+class AddCoin(coin: Coin, threshold: Int) extends FSMAspect {
   def apply(fsm: FeatureOrientedFSM) = {
 
     //Add the token
@@ -28,7 +29,7 @@ class AddCoin(coin: Coin, threshold: Int) extends Aspect {
       val token = k._2.asInstanceOf[Coin]
 
       if (state.total + token.value <= threshold) {
-        val joinpoint = Set[(State, Token)](k)
+        val joinpoint = Set[TransitionKey](k)
         val destination = Set[State](newFSM.nameMap((state.total + token.value).toString))
         SetUnion(joinpoint, destination, newFSM)
       } else {

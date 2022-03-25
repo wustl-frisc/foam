@@ -1,8 +1,8 @@
+package edu.wustl.sbs
 package fsm
-
-import fsm._
-import fsm.featuredfsm._
+package featuredfsm
 
 package object aspects {
   type Pointcut = Set[TransitionKey]
+  type FSMAspect = Aspect[FeatureOrientedFSM]
 }

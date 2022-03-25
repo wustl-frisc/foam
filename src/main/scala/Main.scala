@@ -1,6 +1,6 @@
+package edu.wustl.sbs
 package main
 import fsm._
-import featuredfsm._
 import examples._
 import chisel3.stage.ChiselStage
 

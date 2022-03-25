@@ -1,7 +1,7 @@
-package fsm.aspects
-
-import fsm._
-import fsm.featuredfsm._
+package edu.wustl.sbs
+package fsm
+package featuredfsm
+package aspects
 
 import scala.util.matching.Regex
 import scala.reflect.ClassTag

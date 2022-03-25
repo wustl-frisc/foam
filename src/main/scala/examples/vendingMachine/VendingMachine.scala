@@ -1,7 +1,9 @@
-package fsm.examples
+package edu.wustl.sbs
+package examples
 
+import fsm._
 import fsm.featuredfsm._
-import fsm.aspects._
+import fsm.featuredfsm.aspects._
 
 object VendingMachine {
   def apply(): FeatureOrientedFSM = {
@@ -18,13 +20,13 @@ object VendingMachine {
     val coinFeatures = for(c <- USCoinSet) yield (new AddCoin(c, 100))
     val productFeatures = for(p <- productSet) yield (new AddProduct(p))
 
-    val finalFSM = applyHelper(coinFeatures ++ productFeatures, fsm)
+    val finalFSM = applyHelper(productFeatures ++ coinFeatures, fsm)
 
     Emitter(finalFSM)
     finalFSM
   }
 
-  private def applyHelper(aspectSet: Set[Aspect], fsm: FeatureOrientedFSM): FeatureOrientedFSM = {
+  private def applyHelper(aspectSet: Set[FSMAspect], fsm: FeatureOrientedFSM): FeatureOrientedFSM = {
     val finalFSM = aspectSet.foldLeft(fsm)((newFSM, a) => a(newFSM))
     if(!finalFSM.equals(fsm)) applyHelper(aspectSet, finalFSM)
     else finalFSM

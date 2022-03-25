@@ -1,4 +1,5 @@
-package fsm.examples
+package edu.wustl.sbs
+package examples
 
 import fsm._
 

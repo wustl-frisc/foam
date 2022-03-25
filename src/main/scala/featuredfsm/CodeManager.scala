@@ -1,5 +1,6 @@
-package fsm.featuredfsm
-import fsm._
+package edu.wustl.sbs
+package fsm
+package featuredfsm
 
 import os.stat
 

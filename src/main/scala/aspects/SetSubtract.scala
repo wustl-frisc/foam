@@ -1,7 +1,7 @@
-package fsm.aspects
-
-import fsm._
-import fsm.featuredfsm._
+package edu.wustl.sbs
+package fsm
+package featuredfsm
+package aspects
 
 object SetSubtract {
   def apply(pointcut: Set[TransitionKey], destinations: Set[State], fsm: FeatureOrientedFSM): FeatureOrientedFSM = {
