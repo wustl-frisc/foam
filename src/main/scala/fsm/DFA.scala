@@ -1,3 +1,4 @@
+package edu.wustl.sbs
 package fsm
 
 trait DFA {
@@ -5,7 +6,7 @@ trait DFA {
     def accept: Set[State]
     def states: Set[State]
     def alphabet: Set[Token]
-    def transitions: Map[(State, Token), State]
+    def transitions: Map[TransitionKey, State]
 }
 
 case class MultiState(s: Set[State]) extends State {
@@ -24,7 +25,7 @@ class ConvertedFSM(f: FSM) extends DFA {
     private implicit var _accept: Set[State] = f.accept
     private implicit var _states: Set[State] = f.states
     override def alphabet: Set[Token] = f.alphabet
-    private implicit var _transitions: Map[(State, Token),State] = Map[(State, Token),State]()
+    private implicit var _transitions: Map[TransitionKey,State] = Map[TransitionKey,State]()
 
     for (((source, token) -> destination) <- f.transitions) {
 
@@ -46,7 +47,7 @@ class ConvertedFSM(f: FSM) extends DFA {
         }
 
     }
-    
+
     override def accept = _accept
     override def states = _states
     override def transitions = _transitions

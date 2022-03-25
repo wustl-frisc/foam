@@ -1,18 +1,29 @@
+package edu.wustl.sbs
 package examples
 
-import featuredfsm._
-import aspects._
+import fsm._
+import fsm.featuredfsm._
+import fsm.featuredfsm.aspects._
 
 object VendingMachine {
   def apply(): FeatureOrientedFSM = {
-    val coinSet = Set[Coin](Coin(25), Coin(10), Coin(5))
+    val USCoinSet = Set[Coin](Coin(25), Coin(5), Coin(10))
+
+    val BritishCoinSet = Set[Coin](Coin(5), Coin(10), Coin(20), Coin(50))
+
     val productSet = Set[Product](Product(60, "Soda"),
       Product(100, "Chips"),
       Product(30, "Gum"))
+
     val fsm = FeatureOrientedFSM(ValueState(0), SimpleStateFactory(), SimpleStateFactory())
-    val coinedFSM = coinSet.foldLeft(fsm)((newFSM, c) => { AddCoin(c, 100, newFSM) })
-    val productedFSM = productSet.foldLeft(coinedFSM)((newFSM, p) => {AddProduct(p, newFSM)})
-    // Emitter(productedFSM)
-    productedFSM
+
+    val coinFeatures = for(c <- USCoinSet) yield (new AddCoin(c, 100))
+    val productFeatures = for(p <- productSet) yield (new AddProduct(p))
+    val features = coinFeatures ++ productFeatures
+
+    val finalFSM = Weaver[FeatureOrientedFSM](features, fsm)
+
+    Emitter(finalFSM)
+    finalFSM
   }
 }

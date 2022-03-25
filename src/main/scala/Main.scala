@@ -1,6 +1,6 @@
+package edu.wustl.sbs
 package main
 import fsm._
-import featuredfsm._
 import examples._
 import chisel3.stage.ChiselStage
 
@@ -17,6 +17,8 @@ object Main extends App {
   tokenizer.execute(List[Token](Character('x'), Character('0'), Character('1'), Character('2'), Character(' ')))
   println("\n\n")
   */
+
+  VendingMachine()
 
   // val vendFSM = VendingMachine()
   // vendFSM.execute(List[Token](Coin(5), Coin(25), Product(30, "Gum")))

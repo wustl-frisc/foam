@@ -1,3 +1,4 @@
+package edu.wustl.sbs
 package fsm
 
 trait FSM {
@@ -5,7 +6,13 @@ trait FSM {
     def accept: Set[State]
     def states: Set[State]
     def alphabet: Set[Token]
-    def transitions: Map[(State, Token), Set[State]]
+    def transitions: Map[TransitionKey, Set[State]]
+
+    def isEqual(otherFSM: FSM) = {
+      if (otherFSM.states.equals(this.states) &&
+        otherFSM.alphabet.equals(this.alphabet) &&
+        otherFSM.transitions.equals(this.transitions)) true else false
+    }
 }
 
 

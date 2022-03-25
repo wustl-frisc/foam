@@ -1,7 +1,8 @@
+package edu.wustl.sbs
 package examples
+
 import fsm._
-import featuredfsm._
-import aspects._
+import fsm.featuredfsm._
 
 // Currently accpts lists of digits, lowercase letters
 object Tokenizer {
@@ -23,7 +24,7 @@ object Tokenizer {
   val variable = SimpleStateFactory()
   fsm = fsm.addState(variable, "variable")
 
-  /* 
+  /*
   // No longer works when executeCode takes no parameters
   var token: String = ""
 

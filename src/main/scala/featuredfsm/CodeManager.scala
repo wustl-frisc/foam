@@ -1,5 +1,7 @@
+package edu.wustl.sbs
+package fsm
 package featuredfsm
-import fsm._
+
 import os.stat
 
 object CodeManager {

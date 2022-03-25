@@ -1,8 +1,9 @@
+package edu.wustl.sbs
 package examples
 
 import fsm._
-import featuredfsm._
-import aspects._
+import fsm.featuredfsm._
+import fsm.featuredfsm.aspects._
 
 object DetectTwoOnes {
 

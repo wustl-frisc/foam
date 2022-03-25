@@ -1,3 +1,5 @@
+package edu.wustl.sbs
+package fsm
 package featuredfsm
 
 import chisel3._

@@ -1,6 +1,7 @@
+package edu.wustl.sbs
+package fsm
+package featuredfsm
 package aspects
-import featuredfsm._
-import fsm._
 
 import scala.util.matching.Regex
 import scala.reflect.ClassTag
@@ -20,9 +21,12 @@ object Pointcut {
     for (s <- fsm.states.collect{case s: A => s}) yield (s, token)
   }
 
-  def byDestination[A <: State : ClassTag](destination: State, fsm: FeatureOrientedFSM) = {
-    fsm.transitions.foldLeft(Set[(State, Token)]())((keySet, map) => {(map._1)._1 match {
-        case state: A if(map._2 contains destination) => keySet + map._1
+  def byDestination[A <: State : ClassTag, B <: Token : ClassTag](destination: State, fsm: FeatureOrientedFSM) = {
+    fsm.transitions.foldLeft(Set[TransitionKey]())((keySet, map) => {(map._1)._1 match {
+        case state: A => (map._1)._2 match {
+          case token: B if(map._2 contains destination) => keySet + map._1
+          case _ => keySet
+        }
         case _ => keySet
       }
     })
@@ -31,7 +35,7 @@ object Pointcut {
   def byDestination(destination: Regex)(implicit fsm: FeatureOrientedFSM) = {
     val stateSet = (for (s <- fsm.nameMap.filter(destination matches _._1)) yield (s._2)).toSet
 
-    fsm.transitions.foldLeft(Set[(State, Token)]())((keySet, m) => {
+    fsm.transitions.foldLeft(Set[TransitionKey]())((keySet, m) => {
       if (!(m._2 & stateSet).isEmpty) {
         keySet + m._1
       } else {
