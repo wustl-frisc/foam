@@ -23,7 +23,6 @@ object VendingMachine {
 
     val finalFSM = Weaver[FeatureOrientedFSM](features, fsm)
 
-    Emitter(finalFSM)
     finalFSM
   }
 }

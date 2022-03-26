@@ -1,7 +1,8 @@
+package edu.wustl.sbs
 package examples
 
-import featuredfsm._
 import fsm._
+import fsm.featuredfsm._
 
 import chisel3._
 import chiseltest._
