@@ -10,7 +10,9 @@ object VendingMachine {
 
   val BritishCoinSet = Set[Coin](Coin(5), Coin(10), Coin(20), Coin(50))
 
-  def apply(coinSet: Set[Coin], threshold: Int) = {
+  val GenericProducts = Set[Product](Product(60, "Soda"), Product(100, "Chips"),Product(30, "Gum"))
+
+  def apply(coinSet: Set[Coin], threshold: Int, productSet: Set[Product]) = {
 
     val start = ValueState(0)
     val accept = SimpleStateFactory()
@@ -21,16 +23,18 @@ object VendingMachine {
     val fsm = new NFA(start, accept, error)
 
     val coinFeatures = for(c <- coinSet) yield (new AddCoin(c, threshold))
-    //val productFeatures = for(p <- productSet) yield (new AddProduct(p))
-    val features = coinFeatures //++ productFeatures
+    val dispenseFeatures = for(p <- productSet) yield (new DispenseProduct(p))
+    val features = coinFeatures ++ dispenseFeatures
 
     val finalFSM = Weaver[NFA](features, fsm, (before: NFA, after: NFA) => before.isEqual(after))
 
     Emitter(finalFSM, element => element match {
       case state: State if (nameMap contains state) => nameMap(state)
       case state: ValueState => state.toString
+      case state: DispenseState => state.toString
       case token: Coin => token.toString
-    })
+      case token: Product => token.toString
+    }, true)
 
     finalFSM
   }
