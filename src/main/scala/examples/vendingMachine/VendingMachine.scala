@@ -24,7 +24,7 @@ object VendingMachine {
 
     val coinFeatures = for(c <- coinSet) yield (new AddCoin(c, threshold))
     val dispenseFeatures = for(p <- productSet) yield (new DispenseProduct(p))
-    val features = coinFeatures ++ dispenseFeatures
+    val features = coinFeatures ++ dispenseFeatures + (new MakeChange)
 
     val finalFSM = Weaver[NFA](features, fsm, (before: NFA, after: NFA) => before.isEqual(after))
 
@@ -32,6 +32,7 @@ object VendingMachine {
       case state: State if (nameMap contains state) => nameMap(state)
       case state: ValueState => state.toString
       case state: DispenseState => state.toString
+      case state: ChangeState => state.toString
       case token: Coin => token.toString
       case token: Product => token.toString
     }, true)
