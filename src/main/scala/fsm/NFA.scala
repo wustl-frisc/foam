@@ -18,7 +18,7 @@ class NFA private (override val start: State,
     val newFSM = addState(k._1).addToken(k._2).addState(d)
 
     new NFA(start, acceptState, error, newFSM.states, newFSM.alphabet,
-      if (transitions(k) contains error) transitions + (k -> (transitions(k) - error + d)) else transitions + (k -> (transitions(k) + d)))
+      if (newFSM.transitions(k) contains error) newFSM.transitions + (k -> (newFSM.transitions(k) - error + d)) else newFSM.transitions + (k -> (newFSM.transitions(k) + d)))
   }
 
   private def addToken(t: Token) = if (alphabet contains t) {

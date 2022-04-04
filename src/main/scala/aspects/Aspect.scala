@@ -1,6 +1,6 @@
 package edu.wustl.sbs
 package aspects
 
-class Aspect[A](transform: A => A) {
-  def apply(base: A) = transform(base)
+trait Aspect[A] {
+  def apply(base: A):A
 }
