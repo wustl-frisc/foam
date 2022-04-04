@@ -2,7 +2,6 @@ package edu.wustl.sbs
 package examples
 
 import fsm._
-import fsm.featuredfsm._
 import aspects._
 
 class AddCoin(coin: Coin, threshold: Int) extends Aspect[NFA] {
