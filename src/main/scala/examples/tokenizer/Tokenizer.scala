@@ -10,48 +10,22 @@ object Tokenizer {
   val start = SimpleStateFactory()
   val acceptState = SimpleStateFactory()
   val error = SimpleStateFactory()
-  implicit var fsm = FeatureOrientedFSM(start, acceptState, error)
+  implicit var fsm = new NFA(start, acceptState, error)
 
   val zero = SimpleStateFactory()
-  fsm = fsm.addState(zero, "zero")
-
   val hex = SimpleStateFactory()
-  fsm = fsm.addState(hex, "hex")
-
   val number = SimpleStateFactory()
-  fsm = fsm.addState(number, "number")
-
   val variable = SimpleStateFactory()
-  fsm = fsm.addState(variable, "variable")
-
-  /*
-  // No longer works when executeCode takes no parameters
-  var token: String = ""
-
-  val normalStates = Set[State](zero, hex, number, variable)
-  for (state <- normalStates) {
-    CodeManager.addCode(state, (x) => {
-      token += (
-        if (x == Lambda) "" else x)
-    })
-  }
-  CodeManager.addCode(start, (x) => { // Adding code to start state
-    token = ""
-  })
-  */
-
   val acceptNumber = SimpleStateFactory()
-  fsm = fsm.addState(acceptNumber, "acceptNumber")
-
   val acceptHex = SimpleStateFactory()
-  fsm = fsm.addState(acceptHex, "acceptHex")
-
   val acceptVariable = SimpleStateFactory()
-  fsm = fsm.addState(acceptVariable, "acceptVariable")
-
   val spaceToken = Character(' ')
-  fsm = fsm.addToken(spaceToken)
   val preAcceptStates = Set[State](acceptNumber, acceptHex, acceptVariable)
+  CodeManager.addCode(acceptNumber, () => { println("Found a number value") })
+  CodeManager.addCode(acceptHex, () => { println("Found a hexadecimal value") })
+  CodeManager.addCode(acceptVariable, () => { println("Found a variable") })
+
+
   fsm = fsm.addTransition((zero, spaceToken), acceptNumber)
 
   fsm = fsm.addTransition((number, spaceToken), acceptNumber)
@@ -63,9 +37,6 @@ object Tokenizer {
   for (state <- preAcceptStates) {
     fsm = fsm.addTransition((state, Lambda), fsm.acceptState)
   }
-  CodeManager.addCode(acceptNumber, () => { println("Found a number value") })
-  CodeManager.addCode(acceptHex, () => { println("Found a hexadecimal value") })
-  CodeManager.addCode(acceptVariable, () => { println("Found a variable") })
 
   val zeroToken = Character('0')
   val capitalCaseXToken = Character('X')
@@ -75,9 +46,6 @@ object Tokenizer {
   val aToZTokens = for (i <- 0 to 25) yield (Character((97 + i).toChar))
   val hexTokens = for (i <- 0 to 5) yield (Character((65 + i).toChar))
   val allTokens = Set(zeroToken) ++ Set(capitalCaseXToken) ++ Set(lowerCaseXToken) ++ oneToNineTokens ++ aToZTokens ++ hexTokens
-  allTokens foreach (t => {
-    fsm = fsm.addToken(t)
-  })
 
   // From start
   fsm = fsm.addTransition((fsm.start, zeroToken), zero)

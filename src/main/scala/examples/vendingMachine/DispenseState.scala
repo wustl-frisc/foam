@@ -4,11 +4,11 @@ package examples
 import fsm._
 import fsm.featuredfsm._
 
-case class ValueState(val value: Int) extends State {
+case class DispenseState(val product: Product) extends State {
   override def executeCode = {
       CodeManager.signal(this)
   }
 
-  override def toString = value.toString 
+  override def toString = "Dispense" + product.toString
 
 }
