@@ -29,14 +29,13 @@ class ChiselFSM(fsm: DFA) extends Module {
 
     val stateRegister = RegInit(stateMap(fsm.start).U(statesWidth.W))
 
-    var stateCondition = when (false.B) {}
     for ((state, stateId) <- stateMap) {
-        stateCondition = stateCondition.elsewhen (stateId.U === stateRegister) {
+        when (stateId.U === stateRegister) {
             state.executeCode
             val transitionsFromState = fsm.transitions.filter((transition) => state == transition._1._1)
             for (((source,token), dest) <- transitionsFromState) {
                 when (io.in === tokenMap(token).U) {
-                    stateRegister := stateMap(fsm.transitions(state, token)).U
+                    stateRegister := stateMap(dest).U
                 }
             }
         }
