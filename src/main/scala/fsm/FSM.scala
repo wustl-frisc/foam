@@ -3,6 +3,7 @@ package fsm
 
 trait FSM {
     def start: State
+    def error: State
     def accept: Set[State]
     def states: Set[State]
     def alphabet: Set[Token]
