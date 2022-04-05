@@ -120,7 +120,7 @@ object Backend {
     */
   @throws(classOf[RuntimeException])
   def view(filePath: String): Unit = {
-    val command = s"$viewFileCommand $filePath"
+    val command = s"viewFileCommand() $filePath"
     import sys.process._
     try {
       command !

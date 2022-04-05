@@ -49,10 +49,10 @@ abstract class Dot(
     val tmpAttr = if (attrs == null) Map[String, String]() else attrs
     if (label != null) {
       s"""[label=${quote(label)} """ +
-        s"""${("" /: tmpAttr){ (acc, elem) => s"$acc ${elem._1}=${elem._2}"}}]"""
+        s"""${(tmpAttr foldLeft ""){ (acc, elem) => s"$acc ${elem._1}=${elem._2}"}}]"""
     }
     else {
-      s"""[${("" /: tmpAttr){ (acc, elem) => s"$acc ${elem._1}=${elem._2}"}}]"""
+      s"""[${(tmpAttr foldLeft ""){ (acc, elem) => s"$acc ${elem._1}=${elem._2}"}}]"""
     }
   }
 
@@ -214,7 +214,7 @@ abstract class Dot(
    */
   protected def _view(filePath: String, format: String): Unit = {
     import sys.process._
-    var command = viewFileCommand
+    var command = viewFileCommand()
     try {
       s"$command $filePath" !
     } catch { case _ : Throwable =>
