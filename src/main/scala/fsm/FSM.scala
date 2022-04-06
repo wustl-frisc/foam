@@ -10,9 +10,9 @@ trait FSM {
     def transitions: Map[TransitionKey, Set[State]]
 
     def isEqual(otherFSM: FSM) = {
-      if (otherFSM.states.equals(this.states) &&
-        otherFSM.alphabet.equals(this.alphabet) &&
-        otherFSM.transitions.equals(this.transitions)) true else false
+      otherFSM.states.equals(this.states) &&
+      otherFSM.alphabet.equals(this.alphabet) &&
+      otherFSM.transitions.equals(this.transitions)
     }
 }
 

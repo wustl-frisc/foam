@@ -263,6 +263,6 @@ class Digraph(
   extends Dot(name, comment, strict, graphAttr, nodeAttr, edgeAttr, body){
 
   override def _head: String = "digraph %s{"
-  override def _edge: String = "\t\t%s -> %s %s"
+  override def _edge: String = "\t\t\"%s\" -> \"%s\" %s"
   override def _edgePlain: String = "\t\t%s -> %s"
 }

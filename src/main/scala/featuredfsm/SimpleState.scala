@@ -8,6 +8,10 @@ private final case class SimpleState(val id: Int) extends State {
         CodeManager.signal(this)
     }
 
+    override def toString(): String = {
+        "SimpleState" + id
+    }
+
 }
 
 object SimpleStateFactory {

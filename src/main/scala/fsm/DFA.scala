@@ -1,13 +1,6 @@
 package edu.wustl.sbs
 package fsm
 
-trait DFA {
-    def start: State
-    def accept: Set[State]
-    def states: Set[State]
-    def alphabet: Set[Token]
-    def transitions: Map[TransitionKey, State]
-}
 
 case class MultiState(s: Set[State]) extends State {
 
@@ -17,39 +10,56 @@ case class MultiState(s: Set[State]) extends State {
         }
     }
 
-}
-
-class ConvertedFSM(f: FSM) extends DFA {
-
-    override def start: State = f.start
-    private implicit var _accept: Set[State] = f.accept
-    private implicit var _states: Set[State] = f.states
-    override def alphabet: Set[Token] = f.alphabet
-    private implicit var _transitions: Map[TransitionKey,State] = Map[TransitionKey,State]()
-
-    for (((source, token) -> destination) <- f.transitions) {
-
-        if (destination.size > 1) {
-            val m = MultiState(destination)
-            _states = _states + m
-            _transitions = _transitions + ((source, token) -> m)
-            if ((destination & f.accept).size > 0) {
-                _accept = _accept + m
-            }
-            val transitionsFromM = f.transitions.filter((transition) => destination.contains(transition._1._1))
-            for (((_, token2) -> destination2) <- transitionsFromM) {
-                for (dest <- destination2) {
-                    _transitions = _transitions + ((m, token2) -> dest)
-                }
-            }
-        } else if (destination.size == 1) {
-            _transitions = _transitions + ((source, token) -> destination.toList(0))
-        }
-
+    override def toString: String = {
+        val strSet = s.map(state => state.toString())
+        val sortedStrList = strSet.toList.sortWith(_.compareTo(_) < 0)
+        sortedStrList.reduceLeft(_ + " and " + _)
     }
 
-    override def accept = _accept
-    override def states = _states
-    override def transitions = _transitions
+}
+
+class DFA(f: FSM) extends FSM {
+
+    override def start: State = f.start
+    override def alphabet = f.alphabet
+    override def error = f.error
+
+    private implicit var newAccept: Set[State] = f.accept
+    private implicit var newStates: Set[State] = f.states
+    private implicit var newTransitions: Map[TransitionKey,Set[State]] = Map[TransitionKey,Set[State]]()
+    processTransitions(f.transitions)
+
+    override def accept = newAccept
+    override def states = newStates
+    override def transitions = newTransitions
+
+
+    private def processTransitions(transitions: Map[TransitionKey, Set[State]]): Unit = {
+        for (((source, token) -> destination) <- transitions) {
+            if (destination.size > 1) {
+                val m = MultiState(destination)
+                newTransitions = newTransitions + ((source, token) -> Set[State](m))
+                if (!states.contains(m)) {
+                    newStates = newStates + m
+                    if ((destination & f.accept).size > 0) {
+                        newAccept = newAccept + m
+                    }
+                    implicit var transitionsFromM = f.transitions.filter({ case ((s, t), d) => destination.contains(s)})
+                    processTransitions(reduceTransitionsByToken(transitionsFromM, m))
+                }
+            } 
+            else if (destination.size == 1) {
+                newTransitions = newTransitions + ((source, token) -> destination)
+            }
+        }
+    }
+
+    private def reduceTransitionsByToken(transitions: Map[TransitionKey, Set[State]], state: State) = {
+        implicit var tokenMap = Map[Token, Set[State]]()
+        for (((source, token) -> destination) <- transitions) {
+            tokenMap = tokenMap + (token -> (tokenMap.getOrElse(token, Set[State]()) ++ destination))
+        }
+        tokenMap.map({ case (t, d) => ((state, t), d) })
+    }
 
 }
