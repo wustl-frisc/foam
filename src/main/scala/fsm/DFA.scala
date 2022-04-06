@@ -18,7 +18,7 @@ case class MultiState(s: Set[State]) extends State {
 
 }
 
-class DFA(f: FSM) extends FSM {
+class DFA(f: FSM, excludeError: Boolean = false) extends FSM {
 
     override def start: State = f.start
     override def alphabet = f.alphabet
@@ -35,7 +35,8 @@ class DFA(f: FSM) extends FSM {
 
 
     private def processTransitions(transitions: Map[TransitionKey, Set[State]]): Unit = {
-        for (((source, token) -> destination) <- transitions) {
+        for (((source, token) -> destsWithError) <- transitions) {
+            val destination = if (excludeError) destsWithError - f.error else destsWithError
             if (destination.size > 1) {
                 val m = MultiState(destination)
                 newTransitions = newTransitions + ((source, token) -> Set[State](m))

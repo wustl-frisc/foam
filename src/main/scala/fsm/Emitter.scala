@@ -12,21 +12,19 @@ object Emitter {
     //dot.attr("node", Map("shape" -> "doublecircle"))
     dot.attr("node", Map("shape" -> "circle"))
 
-    fsm.transitions foreach (tm => {
-      val key = tm._1
-      val destinationSet = tm._2
-
-      if((key._1 != fsm.error) || (key._1 == fsm.error && !excludeError)){
-        dot.node(namer(key._1))
+    for (state <- fsm.states) {
+      if (state != fsm.error || !excludeError) {
+        dot.node(namer(state))
       }
+    }
 
-      if(!(destinationSet contains fsm.error) || ((destinationSet contains fsm.error) && !excludeError)){
-        destinationSet foreach (d => {
-          dot.node(namer(d))
-          dot.edge(namer(key._1), namer(d), label = namer(key._2))
-        })
+    for (((source ,token) -> destinationSet) <- fsm.transitions) {
+      if (!destinationSet.contains(fsm.error) || !excludeError) {
+        for (destination <- destinationSet) {
+          dot.edge(namer(source), namer(destination), label = namer(token))
+        }
       }
-    })
+    }
 
     dot.view(fileName = "fsm.gv", directory = ".")
   }
