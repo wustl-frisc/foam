@@ -12,8 +12,9 @@ class FundsWarning extends Aspect[NFA] {
         case _ => false
       }
       case _ => false
-    }) map {_.asInstanceOf[(ValueState, Product)]}
+    })
 
-    Advice[(ValueState, Product), NFA](transitionKeyPointcut, nfa)((prevNFA, key) => prevNFA.addTransition(key, PrinterState("InsufficientFunds")))
+    Around[TransitionKey](transitionKeyPointcut, nfa)((thisJoinPoint: TransitionKey) => PrinterState("InsufficientFunds"))
+
   }
 }

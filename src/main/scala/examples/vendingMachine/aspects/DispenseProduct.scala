@@ -11,6 +11,6 @@ class DispenseProduct(product: Product) extends Aspect[NFA] {
       case _ => false
     }) map {_.asInstanceOf[ValueState]}
 
-    Advice[ValueState, NFA](statePointCut, nfa)((prevNFA, state) => prevNFA.addTransition((state, product), DispenseState(product)))
+    Following[ValueState](statePointCut, nfa)((thisJoinPoint: State) => (product, DispenseState(product)))
   }
 }
