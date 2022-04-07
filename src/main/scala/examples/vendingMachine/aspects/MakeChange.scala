@@ -12,8 +12,8 @@ class MakeChange extends Aspect[NFA] {
         case _ => false
       }
       case _ => false
-    }) map {_.asInstanceOf[(ValueState, Product)]}
+    })
 
-    Advice[(ValueState, Product), NFA](transitionKeyPointcut, nfa)((prevNFA, key) => prevNFA.addTransition(key, ChangeState(key._1.value - key._2.value)))
+    Around[TransitionKey](transitionKeyPointcut, nfa)((thisJoinPoint: TransitionKey) => ChangeState(thisJoinPoint._1.asInstanceOf[ValueState].value - thisJoinPoint._2.asInstanceOf[Product].value))
   }
 }

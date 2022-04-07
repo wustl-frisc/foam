@@ -12,8 +12,8 @@ class TryAgain extends Aspect[NFA] {
         case _ => false
       }
       case _ => false
-    }) map {_.asInstanceOf[(ValueState, Product)]}
+    })
 
-    Advice[(ValueState, Product), NFA](transitionKeyPointcut, nfa)((prevNFA, key) => prevNFA.addTransition(key, key._1))
+    Around[TransitionKey](transitionKeyPointcut, nfa)((thisJoinPoint: TransitionKey) => thisJoinPoint._1)
   }
 }
