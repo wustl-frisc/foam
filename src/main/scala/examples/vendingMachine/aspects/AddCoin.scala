@@ -13,6 +13,6 @@ class AddCoin(coin: Coin, threshold: Int) extends Aspect[NFA] {
       case _ => false
     }) map {_.asInstanceOf[ValueState]}
 
-    Advice[ValueState, NFA](statePointCut, nfa)((prevNFA, state) => prevNFA.addTransition((state, coin), ValueState(state.value + coin.value)))
+    Following[ValueState](statePointCut, nfa)((thisJoinPoint: ValueState) => (coin, ValueState(thisJoinPoint.value + coin.value)))
   }
 }
