@@ -13,6 +13,6 @@ class ChangeReturn extends Aspect[NFA] {
       case _ => false
     }) map {_.asInstanceOf[ValueState]}
 
-    Following[ValueState](statePointCut, nfa)((thisJoinPoint: ValueState) => (System("ChangeReturn"), ValueState(thisJoinPoint.value)))
+    Following[ValueState](statePointCut, nfa)((thisJoinPoint: ValueState) => (System("ChangeReturn"), ChangeState(thisJoinPoint.value)))
   }
 }
