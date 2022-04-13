@@ -11,6 +11,7 @@ class DispenseProduct(product: Product) extends Aspect[NFA] {
       case _ => false
     }) map {_.asInstanceOf[ValueState]}
 
-    Following[ValueState](statePointCut, nfa)((thisJoinPoint: State) => (product, DispenseState(product)))
+    val nfaWithDispensing = Following[ValueState](statePointCut, nfa)((thisJoinPoint: State) => (product, DispenseState(product)))
+    Following[DispenseState](Set[DispenseState](DispenseState(product)), nfaWithDispensing)((s: State) => (Lambda, nfaWithDispensing.acceptState))
   }
 }

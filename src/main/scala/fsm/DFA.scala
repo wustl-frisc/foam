@@ -2,31 +2,17 @@ package edu.wustl.sbs
 package fsm
 
 
-case class MultiState(s: Set[State]) extends State {
+class DFA(input: FSM, excludeError: Boolean = false) extends FSM {
 
-    override def executeCode: Unit = {
-        for (state <- s) {
-            state.executeCode
-        }
-    }
-
-    override def toString: String = {
-        val strSet = s.map(state => state.toString())
-        val sortedStrList = strSet.toList.sortWith(_.compareTo(_) < 0)
-        sortedStrList.reduceLeft(_ + " and " + _)
-    }
-
-}
-
-class DFA(f: FSM, excludeError: Boolean = false) extends FSM {
+    val f = new RemovedLambda(input)
 
     override def start: State = f.start
     override def alphabet = f.alphabet
     override def error = f.error
 
-    private implicit var newAccept: Set[State] = f.accept
-    private implicit var newStates: Set[State] = f.states
-    private implicit var newTransitions: Map[TransitionKey,Set[State]] = Map[TransitionKey,Set[State]]()
+    private var newAccept: Set[State] = f.accept
+    private var newStates: Set[State] = f.states
+    private var newTransitions: Map[TransitionKey,Set[State]] = Map[TransitionKey,Set[State]]()
     processTransitions(f.transitions)
 
     override def accept = newAccept
@@ -38,14 +24,14 @@ class DFA(f: FSM, excludeError: Boolean = false) extends FSM {
         for (((source, token) -> destsWithError) <- transitions) {
             val destination = if (excludeError) destsWithError - f.error else destsWithError
             if (destination.size > 1) {
-                val m = MultiState(destination)
+                val m = MultiStateFactory(destination)
                 newTransitions = newTransitions + ((source, token) -> Set[State](m))
                 if (!states.contains(m)) {
                     newStates = newStates + m
                     if ((destination & f.accept).size > 0) {
                         newAccept = newAccept + m
                     }
-                    implicit var transitionsFromM = f.transitions.filter({ case ((s, t), d) => destination.contains(s)})
+                    val transitionsFromM = f.transitions.filter({ case ((s, t), d) => destination.contains(s)})
                     processTransitions(reduceTransitionsByToken(transitionsFromM, m))
                 }
             } 
@@ -61,6 +47,56 @@ class DFA(f: FSM, excludeError: Boolean = false) extends FSM {
             tokenMap = tokenMap + (token -> (tokenMap.getOrElse(token, Set[State]()) ++ destination))
         }
         tokenMap.map({ case (t, d) => ((state, t), d) })
+    }
+
+}
+
+
+class RemovedLambda(f: FSM) extends FSM {
+
+    override def error: State = f.error
+
+    override def alphabet: Set[Token] = f.alphabet
+
+
+    private val lambdaClosures = f.states.map((state) => (state, takeLambdaTransitions(state))).toMap
+    private var newStates = f.states.map(state => MultiStateFactory(lambdaClosures(state)))
+    private var newTransitions: Map[TransitionKey,Set[State]] = Map[TransitionKey,Set[State]]()
+
+    combineTransitions()
+
+    override def states: Set[State] = newStates
+    override def start = MultiStateFactory(lambdaClosures(f.start))
+    override def accept = f.accept.map((state) => MultiStateFactory(lambdaClosures(state)))
+    override def transitions = newTransitions
+
+    private def takeLambdaTransitions(state: State): Set[State] = {
+        val destination = f.transitions.filter({ case ((source, token), destination) => source==state && token.isLamda}).values.toSet.reduce(_++_)
+        if (destination.size > 0) {
+            destination.foldLeft(Set[State]())((acc, ele) => acc ++ takeLambdaTransitions(ele)) + state
+        } 
+        else {
+            Set[State](state)
+        }
+    }
+
+    private def combineTransitions() = {
+        for ((_, closure) <- lambdaClosures) {
+            for (token <- f.alphabet) {
+                if (!token.isLamda) {
+                    var destSet = Set[State]()
+                    for (state <- closure) {
+                        val destOption = f.transitions.get((state, token))
+                        if (destOption.isDefined) {
+                            destSet = destSet ++ destOption.get
+                        }
+                    }
+                    val destination = if (destSet.size == 0) Set[State](f.error) else destSet.map((state) => MultiStateFactory(lambdaClosures(state)))
+                    newStates = newStates ++ destination
+                    newTransitions = newTransitions + ((MultiStateFactory(closure), token) -> destination)
+                }
+            }
+        }
     }
 
 }

@@ -12,13 +12,13 @@ object VendingMachine {
 
   val GenericProducts = Set[Product](Product(60, "Soda"), Product(100, "Chips"),Product(30, "Gum"))
 
+  private val start = ValueState(0)
+  private val accept = SimpleStateFactory()
+  private val error = SimpleStateFactory()
+
+  val nameMap = Map[State, String](start -> "Start", accept -> "Accept", error -> "Error")
+
   def apply(coinSet: Set[Coin], threshold: Int, productSet: Set[Product]) = {
-
-    val start = ValueState(0)
-    val accept = SimpleStateFactory()
-    val error = SimpleStateFactory()
-
-    val nameMap = Map[State, String](start -> "start", accept -> "accept", error -> "error")
 
     val fsm = new NFA(start, accept, error)
 
@@ -31,12 +31,6 @@ object VendingMachine {
       (new FundsWarning)
 
     val finalFSM = Weaver[NFA](features, fsm, (before: NFA, after: NFA) => before.isEqual(after))
-
-    Emitter(finalFSM, element => element match {
-      case state: State if (nameMap contains state) => nameMap(state)
-      case state: State => state.toString
-      case token: Token => token.toString
-    }, true)
 
     finalFSM
   }
