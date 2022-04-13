@@ -61,13 +61,14 @@ class RemovedLambda(f: FSM) extends FSM {
 
     private val lambdaClosures = f.states.map((state) => (state, takeLambdaTransitions(state))).toMap
     private var newStates = f.states.map(state => MultiStateFactory(lambdaClosures(state)))
+    private var newAccept = f.accept.map((state) => MultiStateFactory(lambdaClosures(state)))
     private var newTransitions: Map[TransitionKey,Set[State]] = Map[TransitionKey,Set[State]]()
 
     combineTransitions()
 
     override def states: Set[State] = newStates
     override def start = MultiStateFactory(lambdaClosures(f.start))
-    override def accept = f.accept.map((state) => MultiStateFactory(lambdaClosures(state)))
+    override def accept = newAccept
     override def transitions = newTransitions
 
     private def takeLambdaTransitions(state: State): Set[State] = {
@@ -92,9 +93,11 @@ class RemovedLambda(f: FSM) extends FSM {
                         }
                     }
                     val destination = if (destSet.size == 0) Set[State](f.error) else destSet.map((state) => MultiStateFactory(lambdaClosures(state)))
-                    newStates = newStates ++ destination
                     newTransitions = newTransitions + ((MultiStateFactory(closure), token) -> destination)
                 }
+            }
+            if ((closure & f.accept).size > 0) {
+                newAccept = newAccept + MultiStateFactory(closure)
             }
         }
     }

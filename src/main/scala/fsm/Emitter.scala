@@ -9,8 +9,8 @@ object Emitter {
 
     val dot = new Digraph("finite_state_machine")
 
-    //dot.attr("node", Map("shape" -> "doublecircle"))
-    dot.attr("node", Map("shape" -> "circle"))
+    dot.node(" ", attrs=Map("shape" -> "plain"))
+    dot.edge(" ", namer(fsm.start))
 
     var usedStates = Set[State]()
 
@@ -25,9 +25,12 @@ object Emitter {
     }
 
     val states = if (excludeDisconnected) usedStates else fsm.states
-    for (state <- states) {
+    for (state <- states & fsm.accept) {
+      dot.node(namer(state), attrs = Map("shape" -> "doublecircle"))
+    }
+    for (state <- (states -- fsm.accept)) {
       if (state != fsm.error || !excludeError) {
-        dot.node(namer(state))
+        dot.node(namer(state), attrs = Map("shape" -> "circle"))
       }
     }
 
