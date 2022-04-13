@@ -12,7 +12,7 @@ case class MultiState(s: Set[State]) extends State {
     override def toString: String = {
         val strSet = s.map(state => state.toString())
         val sortedStrList = strSet.toList.sortWith(_.compareTo(_) < 0)
-        sortedStrList.reduceLeft(_ + " and\n " + _)
+        sortedStrList.reduceLeft(_ + " and " + _)
     }
 
 }
