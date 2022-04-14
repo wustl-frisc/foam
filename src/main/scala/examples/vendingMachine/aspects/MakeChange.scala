@@ -14,7 +14,9 @@ class MakeChange extends Aspect[NFA] {
       case _ => false
     })
 
-    val nfaWithChange = Around[(ValueState, Product)](transitionKeyPointcut, nfa)((thisJoinPoint: (ValueState, Product)) => ChangeState(thisJoinPoint._1.value - thisJoinPoint._2.value))
+    val nfaWithChange = Around[(ValueState, Product)](transitionKeyPointcut, nfa)((thisJoinPoint: (ValueState, Product)) => {
+      nfa.transitions(thisJoinPoint) + ChangeState(thisJoinPoint._1.value - thisJoinPoint._2.value)
+    })
 
     val statePointCut: Pointcut[ChangeState] = Pointcutter[State, ChangeState](nfa.states, state => state match {
       case s: ChangeState => true

@@ -14,7 +14,7 @@ class FundsWarning extends Aspect[NFA] {
       case _ => false
     })
 
-    Around[TransitionKey](transitionKeyPointcut, nfa)((thisJoinPoint: TransitionKey) => PrinterState("InsufficientFunds"))
+    Around[TransitionKey](transitionKeyPointcut, nfa)((thisJoinPoint: TransitionKey) => nfa.transitions(thisJoinPoint) + PrinterState("InsufficientFunds"))
 
   }
 }
