@@ -13,6 +13,6 @@ class AddCoin(coin: Coin, threshold: Int) extends Aspect[NFA] {
       case _ => false
     })
 
-    Following[ValueState](statePointCut, nfa)((thisJoinPoint: ValueState) => (coin, ValueState(thisJoinPoint.value + coin.value)))
+    After[ValueState](statePointCut, nfa)((thisJoinPoint: ValueState) => (coin, ValueState(thisJoinPoint.value + coin.value)))
   }
 }

@@ -21,6 +21,6 @@ class MakeChange extends Aspect[NFA] {
       case _ => false
     })
 
-    Following[ChangeState](statePointCut, nfaWithChange)((s: ChangeState) => (Lambda, nfaWithChange.acceptState))
+    After[ChangeState](statePointCut, nfaWithChange)((s: ChangeState) => (Lambda, nfaWithChange.acceptState))
   }
 }
