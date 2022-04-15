@@ -18,7 +18,13 @@ class NFA private (override val start: State,
     val newFSM = addState(k._1).addToken(k._2).addState(d)
 
     new NFA(start, acceptState, error, newFSM.states, newFSM.alphabet,
-      if (newFSM.transitions(k) contains error) newFSM.transitions + (k -> Set[State](d)) else newFSM.transitions + (k -> (newFSM.transitions(k) + d)))
+      if(d == error) { //never allow error to be remapped
+        newFSM.transitions
+      } else if (newFSM.transitions(k) contains error) {
+        newFSM.transitions + (k -> Set[State](d))
+      } else {
+        newFSM.transitions + (k -> (newFSM.transitions(k) + d))
+      })
   }
 
   def clearTransitions(k: TransitionKey) = {
