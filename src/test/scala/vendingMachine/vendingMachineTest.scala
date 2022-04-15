@@ -4,7 +4,6 @@ package examples
 import fsm._
 import fsm.featuredfsm._
 
-import chisel3._
 import chiseltest._
 import org.scalatest._
 import org.scalatest.flatspec.AnyFlatSpec
