@@ -14,6 +14,7 @@ class DFA(input: FSM, excludeError: Boolean = false) extends FSM {
     private var newStates: Set[State] = f.states
     private var newTransitions: Map[TransitionKey,Set[State]] = Map[TransitionKey,Set[State]]()
     processTransitions(f.transitions)
+    if (!excludeError) addTransitionsToError()
 
     override def accept = newAccept
     override def states = newStates
@@ -47,6 +48,17 @@ class DFA(input: FSM, excludeError: Boolean = false) extends FSM {
             tokenMap = tokenMap + (token -> (tokenMap.getOrElse(token, Set[State]()) ++ destination))
         }
         tokenMap.map({ case (t, d) => ((state, t), d) })
+    }
+
+    private def addTransitionsToError() = {
+        for (token <- alphabet) {
+            for (state <- newStates) {
+                val destOption = newTransitions.get((state, token))
+                if (destOption.isEmpty || destOption.get.size == 0) {
+                    newTransitions += ((state, token) -> Set(f.error))
+                }
+            }
+        }
     }
 
 }
