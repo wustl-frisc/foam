@@ -11,8 +11,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 class DetectTwoOnesTest extends AnyFlatSpec with ChiselScalatestTester with FSMTest {
 
-    val fsm = DetectTwoOnes.fsm
-
+    val fsm = DetectTwoOnes()
+    override val dfa = new DFA(fsm)
+    
     it should "Reject 0" in {
         testString("0", false)
     }

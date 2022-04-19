@@ -23,12 +23,6 @@ object DetectTwoOnes {
         addTransitions((stateOne, Zero), Set[State](start)).
         addTransitions((stateOne, One), Set[State](accept))
 
-        Emitter(fsm, element => element match {
-            case state: State if (nameMap contains state) => nameMap(state)
-            case state: State => state.toString
-            case token: Token => token.toString
-        }, true)
-
         fsm
     }
 

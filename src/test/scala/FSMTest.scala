@@ -11,10 +11,10 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 trait FSMTest extends AnyFlatSpec with ChiselScalatestTester {
 
-    def fsm: FSM
+    def dfa: DFA
 
     def testInput(input: List[Token], outcome: Boolean) = {
-        test(new ChiselFSM(new ConvertedFSM(fsm))) { dut => {
+        test(new ChiselFSM(dfa)) { dut => {
             val tokenMap = dut.tokenMap
             for (token <- input) {
                 dut.io.in.poke(tokenMap(token).U)
