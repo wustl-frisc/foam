@@ -10,7 +10,11 @@ object VendingMachine {
 
   val BritishCoinSet = Set[Coin](Coin(5), Coin(10), Coin(20), Coin(50))
 
-  val GenericProducts = Set[Product](Product(60, "Soda"), Product(100, "Chips"),Product(30, "Gum"))
+  val GenericProducts = Set[Product](
+    Product(60, "Soda"),
+    Product(100, "Chips"),
+    Product(30, "Gum"),
+    Product(50, "Peanut"))
 
   private val start = ValueState(0)
   private val accept = SimpleStateFactory()
@@ -27,8 +31,7 @@ object VendingMachine {
     val features = coinFeatures ++ dispenseFeatures +
       (new MakeChange) +
       (new ChangeReturn) +
-      (new TryAgain) +
-      (new FundsWarning)
+      (new TryAgain)
 
     val finalFSM = Weaver[NFA](features, fsm, (before: NFA, after: NFA) => before.isEqual(after))
 

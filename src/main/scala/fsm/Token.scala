@@ -1,6 +1,6 @@
 package edu.wustl.sbs
 package fsm
 
-trait Token {
+trait Token extends Component {
     def isLamda: Boolean = false
 }

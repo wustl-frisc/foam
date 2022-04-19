@@ -15,6 +15,8 @@ class BailOut extends Aspect[NFA] {
       case _ => false
     })
 
-    Around[(ValueState, Product)](transitionKeyPointcut, nfa)((thisJoinPoint: (ValueState, Product)) => ChangeState(thisJoinPoint._1.value))
+    Around[(ValueState, Product)](transitionKeyPointcut, nfa)((thisJoinPoint: (ValueState, Product)) => {
+      nfa.getTransitions(thisJoinPoint) - nfa.error + ChangeState(thisJoinPoint._1.value)
+    })
   }
 }

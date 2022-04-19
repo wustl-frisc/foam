@@ -14,11 +14,16 @@ class NFA private (override val start: State,
     this(start, acceptState, error, Set[State](start, acceptState, error), Set[Token](Lambda), Map[TransitionKey, Set[State]]((start, Lambda) -> Set[State](), (error, Lambda) -> Set[State](), (acceptState, Lambda) -> Set[State]()))
   }
 
-  def addTransition(k: TransitionKey, d: State) = {
-    val newFSM = addState(k._1).addToken(k._2).addState(d)
+  def getTransitions(k: TransitionKey) = transitions.getOrElse(k, Set[State](error))
 
-    new NFA(start, acceptState, error, newFSM.states, newFSM.alphabet,
-      if (newFSM.transitions(k) contains error) newFSM.transitions + (k -> (newFSM.transitions(k) - error + d)) else newFSM.transitions + (k -> (newFSM.transitions(k) + d)))
+  def addTransitions(k: TransitionKey, d: Set[State]) = d.foldLeft(this.addState(k._1).addToken(k._2))((newBase, state) => {
+      val newFSM = newBase.addState(state)
+      new NFA(start, acceptState, error, newFSM.states, newFSM.alphabet, newFSM.transitions + (k -> (newFSM.transitions(k) + state)))
+  })
+
+  def clearTransitions(k: TransitionKey) = {
+    val newFSM = this.addState(k._1).addToken(k._2)
+    new NFA(start, acceptState, error, newFSM.states, newFSM.alphabet, newFSM.transitions + (k -> Set[State]()))
   }
 
   private def addToken(t: Token) = if (alphabet contains t) {

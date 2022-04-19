@@ -13,6 +13,10 @@ class ChangeReturn extends Aspect[NFA] {
       case _ => false
     })
 
-    Following[ValueState](statePointCut, nfa)((thisJoinPoint: ValueState) => (System("ChangeReturn"), ChangeState(thisJoinPoint.value)))
+    val transitionPointcut: Pointcut[(ValueState, Token)] = for(s <- statePointCut) yield (s, System("ChangeReturn"))
+
+    Around[(ValueState, Token)](transitionPointcut, nfa)((thisJoinPoint: (ValueState, Token)) => {
+        nfa.getTransitions(thisJoinPoint) - nfa.error + ChangeState(thisJoinPoint._1.value)
+    })
   }
 }

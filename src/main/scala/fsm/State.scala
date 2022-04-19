@@ -1,8 +1,6 @@
 package edu.wustl.sbs
 package fsm
 
-trait State {
-
+trait State extends Component {
     def executeCode: Unit
-
 }

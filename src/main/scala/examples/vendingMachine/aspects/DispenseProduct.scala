@@ -11,7 +11,22 @@ class DispenseProduct(product: Product) extends Aspect[NFA] {
       case _ => false
     })
 
-    val nfaWithDispensing = Following[ValueState](statePointCut, nfa)((thisJoinPoint: State) => (product, DispenseState(product)))
-    Following[State](Set[State](DispenseState(product)), nfaWithDispensing)((s: State) => (Lambda, nfaWithDispensing.acceptState))
+    val transitionPointcut: Pointcut[(ValueState, Token)] = for(s <- statePointCut) yield (s, product)
+
+    val dispenseNFA = Around[(ValueState, Token)](transitionPointcut, nfa)((thisJoinPoint: (ValueState, Token)) => {
+        nfa.getTransitions(thisJoinPoint) - nfa.error + DispenseState(product)
+    })
+
+    val dispensePointcut = Pointcutter[State, DispenseState](nfa.states, state => state match {
+      case s: DispenseState => true
+      case _ => false
+    })
+
+    val acceptPointcut: Pointcut[(DispenseState, Token)] = for(s <- dispensePointcut) yield (s, Lambda)
+
+    Around[(DispenseState, Token)](acceptPointcut, dispenseNFA)((thisJoinPoint: (DispenseState, Token)) => {
+      nfa.getTransitions(thisJoinPoint) - nfa.error + nfa.acceptState
+    })
+
   }
 }

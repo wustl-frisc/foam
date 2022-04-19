@@ -18,12 +18,12 @@ object DetectTwoOnes {
 
         val stateOne = SimpleStateFactory()
 
-        fsm = fsm.addTransition((start, Zero), start).
-        addTransition((start, One), stateOne).
-        addTransition((stateOne, Zero), start).
-        addTransition((stateOne, One), accept)
+        fsm = fsm.addTransitions((start, Zero), Set[State](start)).
+        addTransitions((start, One), Set[State](stateOne)).
+        addTransitions((stateOne, Zero), Set[State](start)).
+        addTransitions((stateOne, One), Set[State](accept))
 
         fsm
     }
-    
+
 }
