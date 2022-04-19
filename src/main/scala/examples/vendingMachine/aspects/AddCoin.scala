@@ -13,6 +13,10 @@ class AddCoin(coin: Coin, threshold: Int) extends Aspect[NFA] {
       case _ => false
     })
 
-    After[ValueState](statePointCut, nfa)((thisJoinPoint: ValueState) => (coin, ValueState(thisJoinPoint.value + coin.value)))
+    val transitionPointcut: Pointcut[(ValueState, Token)] = for(s <- statePointCut) yield (s, coin)
+
+    Around[(ValueState, Token)](transitionPointcut, nfa)((thisJoinPoint: (ValueState, Token)) => {
+        (nfa.getTransitions(thisJoinPoint) - nfa.error) + ValueState(thisJoinPoint._1.value + coin.value)
+    })
   }
 }

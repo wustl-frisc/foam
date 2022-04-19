@@ -14,6 +14,8 @@ class TryAgain extends Aspect[NFA] {
       case _ => false
     })
 
-    Around[TransitionKey](transitionKeyPointcut, nfa)((thisJoinPoint: TransitionKey) => nfa.transitions(thisJoinPoint) + thisJoinPoint._1)
+    Around[TransitionKey](transitionKeyPointcut, nfa)((thisJoinPoint: TransitionKey) => {
+      nfa.getTransitions(thisJoinPoint) - nfa.error + thisJoinPoint._1
+    })
   }
 }

@@ -8,7 +8,7 @@ import chisel3.stage.ChiselStage
 object Main extends App {
   val vendFsm = VendingMachine(VendingMachine.USCoinSet, 100, VendingMachine.GenericProducts)
 
-  val vendDfa = new DFA(vendFsm, true)
+  val vendDfa = new DFA(vendFsm, false)
 
   val namer: Any => String = (element) => element match {
     case state: State if (VendingMachine.nameMap contains state) => VendingMachine.nameMap(state)
@@ -21,5 +21,4 @@ object Main extends App {
   }
 
   Emitter(vendDfa, namer, true, true)
-
 }
