@@ -7,18 +7,16 @@ import fsm.featuredfsm._
 // Currently accpts lists of digits, lowercase letters
 object Tokenizer {
 
-  val start = SimpleStateFactory()
-  val acceptState = SimpleStateFactory()
-  val error = SimpleStateFactory()
-  implicit var fsm = new NFA(start, acceptState, error)
+  val start = SimpleStateFactory(false)
+  implicit var fsm = new NFA(start)
 
-  val zero = SimpleStateFactory()
-  val hex = SimpleStateFactory()
-  val number = SimpleStateFactory()
-  val variable = SimpleStateFactory()
-  val acceptNumber = SimpleStateFactory()
-  val acceptHex = SimpleStateFactory()
-  val acceptVariable = SimpleStateFactory()
+  val zero = SimpleStateFactory(false)
+  val hex = SimpleStateFactory(false)
+  val number = SimpleStateFactory(false)
+  val variable = SimpleStateFactory(false)
+  val acceptNumber = SimpleStateFactory(true)
+  val acceptHex = SimpleStateFactory(true)
+  val acceptVariable = SimpleStateFactory(true)
   val spaceToken = Character(' ')
   val preAcceptStates = Set[State](acceptNumber, acceptHex, acceptVariable)
   CodeManager.addCode(acceptNumber, () => { println("Found a number value") })
@@ -33,10 +31,6 @@ object Tokenizer {
   fsm = fsm.addTransition((hex, spaceToken), acceptHex)
 
   fsm = fsm.addTransition((variable, spaceToken), acceptVariable)
-
-  for (state <- preAcceptStates) {
-    fsm = fsm.addTransition((state, Lambda), fsm.acceptState)
-  }
 
   val zeroToken = Character('0')
   val capitalCaseXToken = Character('X')
