@@ -2,7 +2,7 @@ package edu.wustl.sbs
 package fsm
 package featuredfsm
 
-private final case class SimpleState(val id: Int) extends State {
+private final case class SimpleState(val id: Int, val isAccept: Boolean) extends State {
 
     override def executeCode = {
         CodeManager.signal(this)
@@ -18,8 +18,8 @@ object SimpleStateFactory {
 
     private var stateCount = 0;
 
-    def apply(): State = {
+    def apply(isAccept: Boolean): State = {
         stateCount += 1
-        SimpleState(stateCount)
+        SimpleState(stateCount, isAccept)
     }
 }
