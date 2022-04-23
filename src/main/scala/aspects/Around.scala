@@ -5,7 +5,7 @@ import fsm._
 
 object Around {
   def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (A, NFA) => (A, NFA)) = {
-    val appliedNFA = Advice[A, NFA](pointcut, base)((prevBase, jp) => {
+    Advice[A, NFA](pointcut, base)((prevBase, jp) => {
       val (advice, newNFA) = body(jp, prevBase)
 
       val oldIns = newNFA.getIns(jp)
@@ -22,12 +22,5 @@ object Around {
         })
       })
     })
-
-    val namer: Any => String = (element) => element match {
-      case other => other.toString
-    }
-
-    Emitter(appliedNFA, namer, false)
-    appliedNFA
   }
 }
