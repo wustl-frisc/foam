@@ -4,7 +4,30 @@ package aspects
 import fsm._
 
 object Around {
-  def apply[A <: TransitionKey](pointcut: Pointcut[A], base: NFA)(body: A => Set[State]) = {
-    Advice[A, NFA](pointcut, base)((prevBase, jp) => prevBase.clearTransitions(jp).addTransitions(jp, body(jp)))
+  def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (A, NFA) => (A, NFA)) = {
+    val appliedNFA = Advice[A, NFA](pointcut, base)((prevBase, jp) => {
+      val (advice, newNFA) = body(jp, prevBase)
+
+      val oldIns = newNFA.getIns(jp)
+      val oldOuts = newNFA.getOuts(jp)
+
+      val step1 = oldIns.foldLeft(newNFA)((prevNFA, key) => {
+        prevNFA.removeTransition(key, jp).addTransition(key, advice)
+      })
+
+      oldOuts.foldLeft(step1)((prevNFA, key) => {
+        val destinations = prevNFA.transitions(key)
+        destinations.foldLeft(prevNFA)((adviceNFA, state) => {
+          adviceNFA.clearTransitions(key).addTransition((advice, key._2), state)
+        })
+      })
+    })
+
+    val namer: Any => String = (element) => element match {
+      case other => other.toString
+    }
+
+    Emitter(appliedNFA, namer, false)
+    appliedNFA
   }
 }
