@@ -12,17 +12,16 @@ object Emitter {
     dot.node(" ", attrs=Map("shape" -> "plain"))
     dot.edge(" ", namer(fsm.start))
 
-    var usedStates = Set[State]()
+    var reachableStates = Set[State]()
 
-    for (((source ,token) -> destinationSet) <- fsm.transitions) {
-      usedStates += source
+    for (((source, token) -> destinationSet) <- fsm.transitions) {
       for (destination <- destinationSet) {
-        usedStates += destination
+        reachableStates += destination
         dot.edge(namer(source), namer(destination), label = namer(token))
       }
     }
 
-    val states = if (excludeDisconnected) usedStates else fsm.states
+    val states = if (excludeDisconnected) reachableStates else fsm.states
     for (state <- states.filter(_.isAccept)) dot.node(namer(state), attrs = Map("shape" -> "doublecircle"))
     for (state <- states.filter(_.isAccept == false)) dot.node(namer(state), attrs = Map("shape" -> "circle"))
 

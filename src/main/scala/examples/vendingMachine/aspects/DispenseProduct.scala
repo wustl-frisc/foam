@@ -11,13 +11,15 @@ class DispenseProduct(product: Product) extends Aspect[NFA] {
       case _ => false
     })
 
-    Around[ValueState](statePointCut, nfa)((thisJoinPoint: ValueState, thisNFA: NFA) => {
-      val newNFA = if(thisJoinPoint.value >= product.value) {
-        thisNFA.addTransition((thisJoinPoint, product), DispenseState(product, thisJoinPoint.value, true))
+    Around[ValueState](statePointCut, nfa)((thisJoinPoint: Joinpoint[ValueState], thisNFA: NFA) => {
+      val noAcceptValueState = ValueState(thisJoinPoint.point.value, false)
+      
+      val newNFA = if(thisJoinPoint.point.value >= product.value) {
+        thisNFA.addTransition((noAcceptValueState, product), DispenseState(product, product.value, true))
       } else {
-        thisNFA.addTransition((thisJoinPoint, product), thisJoinPoint)
+        thisNFA.addTransition((noAcceptValueState, product), noAcceptValueState)
       }
-      (ValueState(thisJoinPoint.value, false), newNFA)
+      (noAcceptValueState, newNFA)
     })
   }
 }

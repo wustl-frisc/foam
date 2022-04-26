@@ -1,6 +1,8 @@
 package edu.wustl.sbs
 package aspects
 
+import fsm._
+
 object Weaver {
   def apply[A](aspectSet: List[_ <: Aspect[A]], base: A, isEqual: (A, A) => Boolean): A = {
     val finalBase = aspectSet.foldLeft(base)((newBase, aspect) => aspect(newBase))
