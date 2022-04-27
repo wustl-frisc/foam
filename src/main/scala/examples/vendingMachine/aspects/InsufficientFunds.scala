@@ -15,7 +15,7 @@ class InsufficientFunds extends Aspect[NFA] {
 
     Before[ValueState](statePointCut, nfa)((thisJoinPoint: Joinpoint[ValueState], thisNFA: NFA) => {
       thisJoinPoint.in.get._2 match {
-        case t: Product => (Some((PrinterState("Insufficient Funds " + thisJoinPoint.point.value, false), Lambda)), thisNFA)
+        case t: Product => (Some((PrinterState("Insufficient Funds", Some(thisJoinPoint.in.get._1), false), Lambda)), thisNFA)
         case _ => (None, thisNFA)
       }
     })
