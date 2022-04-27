@@ -3,8 +3,6 @@ package examples
 
 import fsm._
 
-case class PortNumber(val num: Int) extends Token {
+case class Bits(val num: Int) extends Token {
   override def toString() = num.toString()
 }
-
-
