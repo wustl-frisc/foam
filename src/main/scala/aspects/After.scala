@@ -4,25 +4,40 @@ package aspects
 import fsm._
 
 object After {
-  def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: A => (Token, State)) = {
-    Advice[A, NFA](pointcut, base)((prevBase, jp) => {
-      val newKey = (jp, body(jp)._1)
+  def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (Joinpoint[A], NFA) => (Option[(Token, State)], NFA)) = {
+    Advice[A, NFA](pointcut, base)((prevBase, point) => {
 
-      val alphaPointcut = Pointcutter[TransitionKey, TransitionKey](prevBase.transitions.keys,
-        key => key match {
-          case k: TransitionKey if(k._1 == jp && k._2 != Lambda) => true
-          case _ => false
-      })
+      val outs = prevBase.getOuts(point)
 
-      val deltaPointcut: Pointcut[TransitionKey] = for((_, t) <- alphaPointcut) yield (body(jp)._2, t)
+      if(outs.isEmpty) {
+        val (advice, newNFA) = body(Joinpoint[A](point, None, None), prevBase)
+        advice match {
+          case None => newNFA
+          case Some(path) => {
+            var (tokenAdvice, stateAdvice) = path
+            newNFA.addTransition((point, tokenAdvice), stateAdvice)
+          }
+        }
+      } else {
+        val joinPoints = for(out <- outs) yield (Joinpoint[A](point, None, Some(out)))
 
-      val step1 = Around[TransitionKey](deltaPointcut, prevBase)((thisJoinPoint: TransitionKey) => {
-        prevBase.getTransitions((jp, thisJoinPoint._2))
-      })
+        joinPoints.foldLeft(prevBase)((newBase, jp) => {
+          val (advice, newNFA) = body(jp, newBase)
 
-      val step2 = Around[TransitionKey](alphaPointcut, step1)((thisJoinPoint: TransitionKey) => Set[State](base.error))
+          advice match {
+            case None => newNFA
+            case Some(path) => {
+              val (tokenAdvice, stateAdvice) = path
+              val out = jp.out.get
 
-      step2.clearTransitions(newKey).addTransitions(newKey, step2.getTransitions(newKey) - base.error + body(jp)._2)
+              val destinations = prevBase.transitions(out)
+              destinations.foldLeft(newNFA.clearTransitions(out).addTransition((point, tokenAdvice), stateAdvice))((adviceNFA, state) => {
+                adviceNFA.addTransition((stateAdvice, out._2), state)
+              })
+            }
+          }
+        })
+      }
     })
   }
 }

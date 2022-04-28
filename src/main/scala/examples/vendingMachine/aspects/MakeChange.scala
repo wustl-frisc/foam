@@ -6,22 +6,25 @@ import aspects._
 
 class MakeChange extends Aspect[NFA] {
   def apply(nfa: NFA) = {
-    val dispensePointcut = Pointcutter[State, DispenseState](nfa.states, state => state match {
-      case s: DispenseState => true
+
+    val newNFA = (new SplitDispense)(nfa)
+
+    val dispensePointcut = Pointcutter[State, DispenseState](newNFA.states, state => state match {
+      case s: DispenseState => s.source match {
+        case None => false
+        case Some(source) => true
+      }
       case _ => false
     })
 
-    Around[DispenseState](dispensePointcut, nfa)((thisJoinPoint: Joinpoint[DispenseState], thisNFA: NFA) => {
-      val source = thisJoinPoint.in.get._1 match {
-        case s: PrinterState => s.source.get
-        case s: State => s
+    After[DispenseState](dispensePointcut, newNFA)((thisJoinPoint: Joinpoint[DispenseState], thisNFA: NFA) => {
+      val source = thisJoinPoint.point.source.get.asInstanceOf[ValueState]
+      val fundsLeft = source.value - thisJoinPoint.point.product.value
+
+      thisJoinPoint.out.get match {
+        case (s,t) if(s == thisJoinPoint.point && t == Lambda) => (None, thisNFA)
+        case _ => (Some((Lambda, ChangeState(fundsLeft, true))), thisNFA)
       }
-
-      val fundsLeft = source.asInstanceOf[ValueState].value - thisJoinPoint.point.product.value
-      val newDispense = DispenseState(thisJoinPoint.point.product, Some(source), thisJoinPoint.point.isAccept)
-      val newNFA = thisNFA.addTransition((newDispense, Lambda), ChangeState(fundsLeft, true))
-
-      (newDispense, newNFA)
     })
   }
 }
