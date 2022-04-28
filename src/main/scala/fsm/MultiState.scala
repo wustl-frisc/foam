@@ -1,7 +1,7 @@
 package edu.wustl.sbs
 package fsm
 
-case class MultiState(s: Set[State]) extends State {
+case class MultiState(s: Set[State], val isAccept: Boolean) extends State {
 
     override def executeCode: Unit = {
         for (state <- s) {
@@ -28,11 +28,15 @@ object MultiStateFactory {
             var cumulativeSet = Set[State]()
             for (state: State <- s) {
                 state match {
-                    case MultiState(set) => cumulativeSet = cumulativeSet ++ set
+                    case MultiState(set, _) => cumulativeSet = cumulativeSet ++ set
                     case anyOther => cumulativeSet = cumulativeSet + anyOther
                 }
             }
-            MultiState(cumulativeSet)
+
+            //if any of these are accept states, we need to count the whole thing
+            var isAccept = cumulativeSet.foldLeft(false)((prevAccept, state) => prevAccept || state.isAccept)
+
+            MultiState(cumulativeSet, isAccept)
         }
         else {
             throw new Exception("Can't create a MultiState with an empty set")

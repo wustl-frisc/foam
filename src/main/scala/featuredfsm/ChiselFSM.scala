@@ -42,5 +42,5 @@ class ChiselFSM(fsm: DFA) extends Module {
     }
 
     // io.out := fsm.accept.map((state) => stateRegister === stateMap(state).U).reduce(_ || _)
-    io.out := fsm.accept.foldLeft(false.B)((prev, state) => prev || (stateRegister === stateMap(state).U))
+    io.out := fsm.states.filter(_.isAccept == true).foldLeft(false.B)((prev, state) => prev || (stateRegister === stateMap(state).U))
 }
