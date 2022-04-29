@@ -3,6 +3,4 @@ package examples
 
 import fsm._
 
-case class System(val action: String) extends Token {
-  override def toString() = action
-}
+case class System(val action: String) extends Token with HasAction

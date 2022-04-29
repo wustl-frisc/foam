@@ -1,4 +1,4 @@
-package edu.wustl.sbs
+ package edu.wustl.sbs
 package examples
 
 import fsm._
@@ -6,17 +6,16 @@ import fsm.featuredfsm._
 
 object DetectTwoOnes {
 
-    val start = SimpleStateFactory()
-    val accept = SimpleStateFactory()
-    val error = SimpleStateFactory()
+    val start = SimpleStateFactory(false)
 
-    val nameMap = Map[State, String](start -> "start", accept -> "accept", error -> "error")
+    val nameMap = Map[State, String](start -> "start")
 
     def apply() = {
 
-        implicit var fsm = new NFA(start, accept, error)
+        implicit var fsm = new NFA(start)
 
-        val stateOne = SimpleStateFactory()
+        val stateOne = SimpleStateFactory(false)
+        val accept = SimpleStateFactory(true)
 
         fsm = fsm.addTransition((start, Zero), start).
         addTransition((start, One), stateOne).
@@ -25,5 +24,5 @@ object DetectTwoOnes {
 
         fsm
     }
-    
+
 }

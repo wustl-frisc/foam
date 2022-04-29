@@ -4,11 +4,8 @@ package examples
 import fsm._
 import fsm.featuredfsm._
 
-case class ValueState(val value: Int) extends State {
+case class ValueState(val value: Int, val isAccept: Boolean) extends State with HasValue {
   override def executeCode = {
       CodeManager.signal(this)
   }
-
-  override def toString = value.toString 
-
 }

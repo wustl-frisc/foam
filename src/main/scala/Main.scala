@@ -35,5 +35,4 @@ object Main extends App {
   val packetFilter = PacketFilter()
   Emitter(packetFilter, namer, true, true)
 
-
 }

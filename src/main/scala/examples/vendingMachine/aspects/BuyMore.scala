@@ -4,7 +4,7 @@ package examples
 import fsm._
 import aspects._
 
-class MakeChange extends Aspect[NFA] {
+class BuyMore extends Aspect[NFA] {
   def apply(nfa: NFA) = {
 
     val newNFA = (new SplitDispense)(nfa)
@@ -23,7 +23,7 @@ class MakeChange extends Aspect[NFA] {
 
       thisJoinPoint.out.get match {
         case (s,t) if(s == thisJoinPoint.point && t == Lambda) => (None, thisNFA)
-        case _ => (Some((Lambda, ChangeState(fundsLeft, true))), thisNFA)
+        case _ => (Some((Lambda, ValueState(fundsLeft, source.isAccept))), thisNFA)
       }
     })
   }
