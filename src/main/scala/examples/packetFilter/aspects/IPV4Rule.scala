@@ -25,16 +25,9 @@ class IPV4Rule(srcIp: String = "*.*.*.*", destIp: String = "*.*.*.*", protocol: 
         })
         
         val nfa2 = Following[Byte](statePointCut, nfa)(
-            (thisJoinPoint: Byte) => (if (bytes(thisJoinPoint.num) == -1) Asterisk else Bits(bytes(thisJoinPoint.num)), Byte(thisJoinPoint.num+1, bytes.take(thisJoinPoint.num+1)))
+            (thisJoinPoint: Byte) => (if (bytes(thisJoinPoint.num) == -1) Lambda else Bits(bytes(thisJoinPoint.num)), Byte(thisJoinPoint.num+1, bytes.take(thisJoinPoint.num+1)))
         )
 
-        // Select states in the path with no Asterisk transition
-        val pointCut2 = statePointCut.filter((state) => nfa2.transitions((state, Asterisk)).contains(nfa2.error))   // nfa2.transitions.get((state, Asterisk)).isEmpty 
-
-        val nfa3 = Following[Byte](pointCut2, nfa2)(
-            (joinPoint: Byte) => (Asterisk, Byte(joinPoint.num+1, List.fill(joinPoint.num+1)(-1)))
-        )
-
-        Following[Byte](Set(Byte(24, bytes)), nfa3)((joinPoint: Byte) => (Lambda, PacketFilter.deny))
+        Following[Byte](Set(Byte(24, bytes)), nfa2)((joinPoint: Byte) => (Lambda, PacketFilter.deny))
     }
 }

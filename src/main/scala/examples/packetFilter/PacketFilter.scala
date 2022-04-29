@@ -19,6 +19,9 @@ object PacketFilter {
         error -> "Error",
         allow -> "Allow",
         deny -> "Deny",
+        Byte(1, List(4)) -> "IPv4",
+        Byte(10, List(4,-1,-1,-1, -1,-1,-1,-1, -1,6)) -> "TCP",
+        Byte(10, List(4,-1,-1,-1, -1,-1,-1,-1, -1,17)) -> "UDP"
     )
     val stateMap = nameMap.map(_.swap)
 
@@ -26,7 +29,13 @@ object PacketFilter {
 
         val fsm = new NFA(start, accept, error)
 
-        val features = Set(new Base(24), new IPV4Rule("167.205.3.11", "167.205.65.32", "TCP", "25", "8080"))
+        val features = Set(
+            new Base(24), 
+            new IPV4Rule("167.205.3.11", "167.205.65.32", "TCP", "25", "8080"),
+            new IPV4Rule("167.*.*.*", "167.19.*.*", "TCP", "*", "*"),
+            new IPV4Rule("167.*.*.*", "*.*.*.*", "TCP", "*", "*"),
+            new AddAsterisks()
+        )
         val finalFSM = Weaver[NFA](features, fsm, (before: NFA, after: NFA) => before.isEqual(after))
 
         finalFSM
