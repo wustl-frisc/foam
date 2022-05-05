@@ -30,10 +30,9 @@ object After {
               val (tokenAdvice, stateAdvice) = path
               val out = jp.out.get
 
-              val destinations = prevBase.transitions(out)
-              destinations.foldLeft(newNFA.clearTransitions(out).addTransition((point, tokenAdvice), stateAdvice))((adviceNFA, state) => {
-                adviceNFA.addTransition((stateAdvice, out._2), state)
-              })
+              newNFA.removeTransition((point, out._1), out._2)
+              .addTransition((point, tokenAdvice), stateAdvice)
+              .addTransition((stateAdvice, out._1), out._2)
             }
           }
         })

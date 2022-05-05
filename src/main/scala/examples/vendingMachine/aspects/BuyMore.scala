@@ -21,9 +21,11 @@ class BuyMore extends Aspect[NFA] {
       val source = thisJoinPoint.point.source.get.asInstanceOf[ValueState]
       val fundsLeft = source.value - thisJoinPoint.point.product.value
 
-      thisJoinPoint.out.get match {
-        case (s,t) if(s == thisJoinPoint.point && t == Lambda) => (None, thisNFA)
-        case _ => (Some((Lambda, ValueState(fundsLeft, source.isAccept))), thisNFA)
+      println(thisJoinPoint.out)
+
+      thisJoinPoint.out match {
+        case Some((t,s)) if(t == Lambda && s == ValueState(fundsLeft, source.isAccept)) => (None, thisNFA)
+        case None => (Some((Lambda, ValueState(fundsLeft, source.isAccept))), thisNFA)
       }
     })
   }

@@ -18,8 +18,8 @@ object Around {
         for(in <- ins; out <- outs) yield (Joinpoint[A](point, Some(in), Some(out)))
       }
 
-      val removeIns = ins.foldLeft(prevBase)((newBase, key) => newBase.removeTransition(key, point))
-      val removeOuts = outs.foldLeft(removeIns)((newBase, key) => newBase.clearTransitions(key))
+      val removeIns = ins.foldLeft(prevBase)((newBase, in) => newBase.removeTransition(in, point))
+      val removeOuts = outs.foldLeft(removeIns)((newBase, out) => newBase.removeTransition((point, out._1), out._2))
 
       joinPoints.foldLeft(removeOuts)((newBase, jp) => {
         val (advice, newNFA) = body(jp, newBase)
@@ -31,10 +31,7 @@ object Around {
             jp.out match {
               case None => step1
               case Some(out) => {
-                val destinations = prevBase.transitions(out)
-                destinations.foldLeft(step1)((adviceNFA, state) => {
-                  adviceNFA.addTransition((advice, out._2), state)
-                })
+                step1.addTransition((advice, out._1), out._2)
               }
             }
           }

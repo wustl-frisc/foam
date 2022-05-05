@@ -10,5 +10,5 @@ object Main extends App {
 
   val vendDFA = new DFA(vendFsm, SimpleStateFactory(false))
 
-  Emitter(vendDFA, VendingMachine.namer)
+  Emitter(vendFsm, VendingMachine.namer)
 }

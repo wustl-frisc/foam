@@ -18,10 +18,12 @@ class NFA private (override val start: State,
   }
 
   def getOuts(state: State) = {
-    transitions.keys.filter(key => key match {
+    val keys = transitions.keys.filter(key => key match {
       case k: TransitionKey if(key._1 == state) => true
       case _ => false
     })
+
+    for(k <- keys; d <- transitions(k)) yield (k._2, d)
   }
 
   def addTransition(k: TransitionKey, d: State) = {

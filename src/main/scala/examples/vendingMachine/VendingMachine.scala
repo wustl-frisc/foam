@@ -30,7 +30,7 @@ object VendingMachine {
     val coinFeatures = (for(c <- coinSet) yield (new AddCoin(c, threshold))).toList
     val productFeatures = (for(p <- productSet) yield (new DispenseProduct(p))).toList
     val features = coinFeatures ++ productFeatures :+ (new PeanutWarning) :+ (new PrintFunds) :+
-      (new InsufficientFunds) :+ (new MakeChange) :+ (new ChangeReturn)
+      (new InsufficientFunds) :+ (new BuyMore) :+ (new ChangeReturn)
 
     val finalFSM = Weaver[NFA](features, fsm, (before: NFA, after: NFA) => before.isEqual(after))
 
