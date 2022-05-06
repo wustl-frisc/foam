@@ -2,21 +2,22 @@ package edu.wustl.sbs
 package examples
 
 import fsm._
+import fsm.featuredfsm._
 import aspects._
 
 class PrintFunds extends Aspect[NFA] {
   def apply(nfa: NFA) = {
 
-    //select all the states of type TotalState
-    val statePointCut = Pointcutter[State, TotalState](nfa.states, state => state match {
-      case s: TotalState => true
+    val tokenPointcut = Pointcutter[Token, Coin](nfa.alphabet, token => token match {
+      case t: Coin => true
       case _ => false
     })
 
-    BeforeState[TotalState](statePointCut, nfa)((thisJoinPoint: StateJoinpoint[TotalState], thisNFA: NFA) => {
-      thisJoinPoint.in.get._2 match {
-        case t: Coin => (Some(PrinterState("¢" + thisJoinPoint.point.value, thisJoinPoint.point.value, false), Lambda), thisNFA)
-        case _ => (None, thisNFA)
+    AfterToken[Coin](tokenPointcut, nfa)((thisJoinPoint: TokenJoinpoint[Coin], thisNFA: NFA) => {
+      var value = thisJoinPoint.out.asInstanceOf[ValueState].value
+      thisJoinPoint.out match {
+        case s: PrinterState if (s.action == "¢" + value.toString) => (None, thisNFA)
+        case _ => (Some((PrinterState("¢" + value, value, false), Lambda)), thisNFA)
       }
     })
   }
