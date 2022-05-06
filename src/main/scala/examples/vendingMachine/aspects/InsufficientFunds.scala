@@ -7,15 +7,15 @@ import aspects._
 class InsufficientFunds extends Aspect[NFA] {
   def apply(nfa: NFA) = {
 
-    //select all the states of type ValueState
-    val statePointCut = Pointcutter[State, ValueState](nfa.states, state => state match {
-      case s: ValueState => true
+    //select all the states of type TotalState
+    val statePointCut = Pointcutter[State, TotalState](nfa.states, state => state match {
+      case s: TotalState => true
       case _ => false
     })
 
-    Before[ValueState](statePointCut, nfa)((thisJoinPoint: Joinpoint[ValueState], thisNFA: NFA) => {
+    Before[TotalState](statePointCut, nfa)((thisJoinPoint: Joinpoint[TotalState], thisNFA: NFA) => {
       thisJoinPoint.in.get._2 match {
-        case t: Product => (Some((PrinterState("Insufficient Funds", Some(thisJoinPoint.in.get._1), false), Lambda)), thisNFA)
+        case t: Product => (Some((PrinterState("Insufficient Funds", thisJoinPoint.point.value, false), Lambda)), thisNFA)
         case _ => (None, thisNFA)
       }
     })

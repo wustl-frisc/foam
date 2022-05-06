@@ -4,11 +4,11 @@ package examples
 import fsm._
 import aspects._
 
-class AddWarning(pointcut: Pointcut[State], warningString: String) extends Aspect[NFA] {
+class AddWarning(pointcut: Pointcut[ValueState], warningString: String) extends Aspect[NFA] {
   def apply(nfa: NFA) = {
-    Before[State](pointcut, nfa)((thisJoinPoint: Joinpoint[State], thisNFA: NFA) => {
-      val source = thisJoinPoint.in.get._1
-      val warning = PrinterState(warningString, Some(source), false)
+    Before[ValueState](pointcut, nfa)((thisJoinPoint: Joinpoint[ValueState], thisNFA: NFA) => {
+      val source = thisJoinPoint.in.get._1.asInstanceOf[ValueState]
+      val warning = PrinterState(warningString, source.value, false)
 
       source match {
         case s: PrinterState if(s.action == warningString) => (None, thisNFA)
