@@ -4,7 +4,8 @@ package examples
 import fsm._
 import fsm.featuredfsm._
 
-case class DispenseState(val product: Product, val source: Option[State], val isAccept: Boolean) extends State with HasAction with HasProduct with HasSource{
+case class DispenseState(val product: Product, override val value: Int, override val isAccept: Boolean)
+  extends ValueState(value, isAccept) with HasAction with HasProduct {
   override def executeCode = {
       CodeManager.signal(this)
   }

@@ -25,12 +25,12 @@ object VendingMachine {
 
   def apply(coinSet: Set[Coin], threshold: Int, productSet: Set[Product]) = {
 
-    val fsm = (new NFA(start)).addTransition((start, Lambda), ValueState(0, true))
+    val fsm = (new NFA(start)).addTransition((start, Lambda), TotalState(0, true))
 
     val coinFeatures = (for(c <- coinSet) yield (new AddCoin(c, threshold))).toList
     val productFeatures = (for(p <- productSet) yield (new DispenseProduct(p))).toList
     val features = coinFeatures ++ productFeatures :+ (new PeanutWarning) :+ (new PrintFunds) :+
-      (new InsufficientFunds) :+ (new MakeChange) :+ (new ChangeReturn)
+      (new InsufficientFunds) :+ (new ChangeReturn) :+ (new BuyMore)
 
     val finalFSM = Weaver[NFA](features, fsm, (before: NFA, after: NFA) => before.isEqual(after))
 

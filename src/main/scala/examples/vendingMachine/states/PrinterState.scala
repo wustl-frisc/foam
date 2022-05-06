@@ -4,7 +4,8 @@ package examples
 import fsm._
 import fsm.featuredfsm._
 
-case class PrinterState(val action: String, val source: Option[State], val isAccept: Boolean) extends State with HasAction with HasSource {
+case class PrinterState(val action: String, override val value: Int, override val isAccept: Boolean)
+  extends ValueState(value, isAccept) with HasAction {
   override def executeCode = {
       CodeManager.signal(this)
   }

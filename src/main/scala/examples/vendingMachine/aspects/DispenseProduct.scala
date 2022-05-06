@@ -6,20 +6,20 @@ import aspects._
 
 class DispenseProduct(product: Product) extends Aspect[NFA] {
   def apply(nfa: NFA) = {
-    val statePointCut: Pointcut[ValueState] = Pointcutter[State, ValueState](nfa.states, state => state match {
-      case s: ValueState  => true
+    val statePointCut: Pointcut[TotalState] = Pointcutter[State, TotalState](nfa.states, state => state match {
+      case s: TotalState  => true
       case _ => false
     })
 
-    Around[ValueState](statePointCut, nfa)((thisJoinPoint: Joinpoint[ValueState], thisNFA: NFA) => {
-      val noAcceptValueState = ValueState(thisJoinPoint.point.value, false)
+    AroundState[TotalState](statePointCut, nfa)((thisJoinPoint: Joinpoint[TotalState], thisNFA: NFA) => {
+      val noAcceptTotalState = TotalState(thisJoinPoint.point.value, false)
 
       val newNFA = if(thisJoinPoint.point.value >= product.value) {
-        thisNFA.addTransition((noAcceptValueState, product), DispenseState(product, None, true))
+        thisNFA.addTransition((noAcceptTotalState, product), DispenseState(product, 0, true))
       } else {
-        thisNFA.addTransition((noAcceptValueState, product), noAcceptValueState)
+        thisNFA.addTransition((noAcceptTotalState, product), noAcceptTotalState)
       }
-      (noAcceptValueState, newNFA)
+      (noAcceptTotalState, newNFA)
     })
   }
 }
