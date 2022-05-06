@@ -11,7 +11,7 @@ class DispenseProduct(product: Product) extends Aspect[NFA] {
       case _ => false
     })
 
-    Around[TotalState](statePointCut, nfa)((thisJoinPoint: Joinpoint[TotalState], thisNFA: NFA) => {
+    AroundState[TotalState](statePointCut, nfa)((thisJoinPoint: Joinpoint[TotalState], thisNFA: NFA) => {
       val noAcceptTotalState = TotalState(thisJoinPoint.point.value, false)
 
       val newNFA = if(thisJoinPoint.point.value >= product.value) {

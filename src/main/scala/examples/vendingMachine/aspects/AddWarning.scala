@@ -6,7 +6,7 @@ import aspects._
 
 class AddWarning(pointcut: Pointcut[ValueState], warningString: String) extends Aspect[NFA] {
   def apply(nfa: NFA) = {
-    Before[ValueState](pointcut, nfa)((thisJoinPoint: StateJoinpoint[ValueState], thisNFA: NFA) => {
+    BeforeState[ValueState](pointcut, nfa)((thisJoinPoint: StateJoinpoint[ValueState], thisNFA: NFA) => {
       val source = thisJoinPoint.in.get._1.asInstanceOf[ValueState]
       val warning = PrinterState(warningString, source.value, false)
 

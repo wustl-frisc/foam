@@ -13,7 +13,7 @@ class AddCoin(coin: Coin, threshold: Int) extends Aspect[NFA] {
       case _ => false
     })
 
-    Around[TotalState](statePointCut, nfa)((thisJoinPoint: Joinpoint[TotalState], thisNFA: NFA) => {
+    AroundState[TotalState](statePointCut, nfa)((thisJoinPoint: Joinpoint[TotalState], thisNFA: NFA) => {
       val newNFA = thisNFA.addTransition((thisJoinPoint.point, coin), TotalState(thisJoinPoint.point.value + coin.value, true))
       (thisJoinPoint.point, newNFA)
     })

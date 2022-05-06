@@ -13,7 +13,7 @@ class ChangeReturn extends Aspect[NFA] {
       case _ => false
     })
 
-    Around[TotalState](statePointCut, nfa)((thisJoinPoint: Joinpoint[TotalState], thisNFA: NFA) => {
+    AroundState[TotalState](statePointCut, nfa)((thisJoinPoint: Joinpoint[TotalState], thisNFA: NFA) => {
       val newNFA = thisNFA.addTransition((thisJoinPoint.point, System("ChangeReturn")),
         ChangeState(thisJoinPoint.point.value, true))
       (thisJoinPoint.point, newNFA)

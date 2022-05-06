@@ -3,7 +3,7 @@ package aspects
 
 import fsm._
 
-object Around {
+object AroundState {
   def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (StateJoinpoint[A], NFA) => (A, NFA)) = {
     Advice[A, NFA](pointcut, base)((prevBase, point) => {
 
@@ -34,6 +34,28 @@ object Around {
                 step1.addTransition((advice, out._1), out._2)
               }
             }
+          }
+        }
+      })
+    })
+  }
+}
+
+object AroundToken {
+  def apply[A <: Token](pointcut: Pointcut[A], base: NFA)(body: (TokenJoinpoint[A], NFA) => (Option[Token], NFA)) = {
+    Advice[A, NFA](pointcut, base)((prevBase, point) => {
+      val inOuts = Pointcutter.getInOuts(prevBase, point)
+      val joinPoints = for(inOut <- inOuts) yield (TokenJoinpoint[A](point, inOut._1, inOut._2))
+
+      joinPoints.foldLeft(prevBase)((newBase, jp) => {
+        val (advice, newNFA) = body(jp, newBase)
+
+        advice match {
+          case None => newNFA
+          case Some(path) => {
+            val tokenAdvice = path
+            newNFA.removeTransition((jp.in, point), jp.out)
+            .addTransition((jp.in, tokenAdvice), jp.out)
           }
         }
       })

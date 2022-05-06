@@ -14,7 +14,7 @@ class BuyMore extends Aspect[NFA] {
       case _ => false
     })
 
-    After[DispenseState](dispensePointcut, newNFA)((thisJoinPoint: StateJoinpoint[DispenseState], thisNFA: NFA) => {
+    AfterState[DispenseState](dispensePointcut, newNFA)((thisJoinPoint: StateJoinpoint[DispenseState], thisNFA: NFA) => {
       val fundsLeft = thisJoinPoint.point.value - thisJoinPoint.point.product.value
 
       thisJoinPoint.out match {

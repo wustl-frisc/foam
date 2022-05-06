@@ -11,7 +11,7 @@ class SplitDispense extends Aspect[NFA] {
       case _ => false
     })
 
-    Around[DispenseState](dispensePointcut, nfa)((thisJoinPoint: StateJoinpoint[DispenseState], thisNFA: NFA) => {
+    AroundState[DispenseState](dispensePointcut, nfa)((thisJoinPoint: StateJoinpoint[DispenseState], thisNFA: NFA) => {
 
       val newDispense = DispenseState(thisJoinPoint.point.product,
         thisJoinPoint.in.get._1.asInstanceOf[ValueState].value,

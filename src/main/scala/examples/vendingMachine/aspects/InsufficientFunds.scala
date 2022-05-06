@@ -13,7 +13,7 @@ class InsufficientFunds extends Aspect[NFA] {
       case _ => false
     })
 
-    Before[TotalState](statePointCut, nfa)((thisJoinPoint: StateJoinpoint[TotalState], thisNFA: NFA) => {
+    BeforeState[TotalState](statePointCut, nfa)((thisJoinPoint: StateJoinpoint[TotalState], thisNFA: NFA) => {
       thisJoinPoint.in.get._2 match {
         case t: Product => (Some((PrinterState("Insufficient Funds", thisJoinPoint.point.value, false), Lambda)), thisNFA)
         case _ => (None, thisNFA)

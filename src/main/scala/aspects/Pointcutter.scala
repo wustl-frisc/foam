@@ -23,4 +23,8 @@ object Pointcutter {
 
     for(k <- keys; d <- fsm.transitions(k)) yield (k._2, d)
   }
+
+  def getInOuts(fsm: FSM, token: Token) = {
+    for(in <- fsm.states; out <- fsm.transitions((in, token))) yield (in, out)
+  }
 }
