@@ -10,22 +10,6 @@ class NFA private (override val start: State,
     this(start, Set[State](start), Set[Token](Lambda), Map[TransitionKey, Set[State]]((start, Lambda) -> Set[State]()))
   }
 
-  def getIns(state: State) = {
-    transitions.keys.filter(key => key match {
-      case k: TransitionKey if(transitions(key) contains state)  => true
-      case _ => false
-    })
-  }
-
-  def getOuts(state: State) = {
-    val keys = transitions.keys.filter(key => key match {
-      case k: TransitionKey if(key._1 == state) => true
-      case _ => false
-    })
-
-    for(k <- keys; d <- transitions(k)) yield (k._2, d)
-  }
-
   def addTransition(k: TransitionKey, d: State) = {
     val newFSM = this.addState(k._1).addToken(k._2).addState(d)
     new NFA(start, newFSM.states, newFSM.alphabet, newFSM.transitions + (k -> (newFSM.transitions(k) + d)))

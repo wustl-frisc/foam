@@ -13,7 +13,7 @@ class PrintFunds extends Aspect[NFA] {
       case _ => false
     })
 
-    Before[TotalState](statePointCut, nfa)((thisJoinPoint: Joinpoint[TotalState], thisNFA: NFA) => {
+    Before[TotalState](statePointCut, nfa)((thisJoinPoint: StateJoinpoint[TotalState], thisNFA: NFA) => {
       thisJoinPoint.in.get._2 match {
         case t: Coin => (Some(PrinterState("¢" + thisJoinPoint.point.value, thisJoinPoint.point.value, false), Lambda), thisNFA)
         case _ => (None, thisNFA)

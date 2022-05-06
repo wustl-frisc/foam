@@ -4,13 +4,13 @@ package aspects
 import fsm._
 
 object After {
-  def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (Joinpoint[A], NFA) => (Option[(Token, State)], NFA)) = {
+  def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (StateJoinpoint[A], NFA) => (Option[(Token, State)], NFA)) = {
     Advice[A, NFA](pointcut, base)((prevBase, point) => {
 
-      val outs = prevBase.getOuts(point)
+      val outs = Pointcutter.getOuts(prevBase, point)
 
       if(outs.isEmpty) {
-        val (advice, newNFA) = body(Joinpoint[A](point, None, None), prevBase)
+        val (advice, newNFA) = body(StateJoinpoint[A](point, None, None), prevBase)
         advice match {
           case None => newNFA
           case Some(path) => {
@@ -19,7 +19,7 @@ object After {
           }
         }
       } else {
-        val joinPoints = for(out <- outs) yield (Joinpoint[A](point, None, Some(out)))
+        val joinPoints = for(out <- outs) yield (StateJoinpoint[A](point, None, Some(out)))
 
         joinPoints.foldLeft(prevBase)((newBase, jp) => {
           val (advice, newNFA) = body(jp, newBase)

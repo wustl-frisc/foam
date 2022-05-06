@@ -4,12 +4,12 @@ package aspects
 import fsm._
 
 object Before {
-  def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (Joinpoint[A], NFA) => (Option[(State, Token)], NFA)) = {
+  def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (StateJoinpoint[A], NFA) => (Option[(State, Token)], NFA)) = {
     Advice[A, NFA](pointcut, base)((prevBase, point) => {
 
-      val ins = prevBase.getIns(point)
+      val ins = Pointcutter.getIns(prevBase, point)
 
-      val joinPoints = for(in <- ins) yield (Joinpoint[A](point, Some(in), None))
+      val joinPoints = for(in <- ins) yield (StateJoinpoint[A](point, Some(in), None))
 
       joinPoints.foldLeft(prevBase)((newBase, jp) => {
         val (advice, newNFA) = body(jp, newBase)
