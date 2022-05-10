@@ -10,6 +10,7 @@ class DFA(input: FSM, error: State) extends FSM {
     private var newStates: Set[State] = input.states
     private var newTransitions: Map[TransitionKey,Set[State]] = input.transitions
     addTransitionsToError()
+    newStates = newStates + error
     processTransitions(newTransitions)
 
     override def states = newStates

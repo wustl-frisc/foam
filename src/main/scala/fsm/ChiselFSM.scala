@@ -1,6 +1,5 @@
 package edu.wustl.sbs
 package fsm
-package featuredfsm
 
 import chisel3._
 import chisel3.util.{switch, is}
@@ -24,14 +23,13 @@ class ChiselFSM(fsm: DFA) extends Module {
 
     val io = IO(new Bundle {
         val in = Input(UInt(tokensWidth.W))
-        val out = Output(Bool())
+        val out = Output(UInt(statesWidth.W))
     })
 
     val stateRegister = RegInit(stateMap(fsm.start).U(statesWidth.W))
 
     for ((state, stateId) <- stateMap) {
         when (stateId.U === stateRegister) {
-            state.executeCode
             val transitionsFromState = fsm.transitions.filter((transition) => state == transition._1._1)
             for (((source,token), dest) <- transitionsFromState) {
                 when (io.in === tokenMap(token).U) {
@@ -41,6 +39,5 @@ class ChiselFSM(fsm: DFA) extends Module {
         }
     }
 
-    // io.out := fsm.accept.map((state) => stateRegister === stateMap(state).U).reduce(_ || _)
-    io.out := fsm.states.filter(_.isAccept == true).foldLeft(false.B)((prev, state) => prev || (stateRegister === stateMap(state).U))
+    io.out := stateRegister
 }

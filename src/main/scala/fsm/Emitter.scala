@@ -3,9 +3,10 @@ package fsm
 
 import scala.collection.mutable.Map
 import com.liangdp.graphviz4s.Digraph
+import chisel3.stage.ChiselStage
 
 object Emitter {
-  def apply(fsm: FSM, namer: Any => String) = {
+  def emitGV(fsm: FSM, namer: Any => String) = {
 
     val dot = new Digraph("finite_state_machine")
 
@@ -35,4 +36,6 @@ object Emitter {
 
     dot.view(fileName = "fsm.gv", directory = ".")
   }
+
+  def emitVerilog(dfa: DFA) = (new ChiselStage).emitVerilog(new ChiselFSM(dfa))
 }
