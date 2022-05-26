@@ -32,9 +32,11 @@ class ChiselFSM(fsm: DFA) extends Module {
         when (stateId.U === stateRegister) {
             val transitionsFromState = fsm.transitions.filter((transition) => state == transition._1._1)
             for (((source,token), dest) <- transitionsFromState) {
+              if(!dest.isEmpty) {
                 when (io.in === tokenMap(token).U) {
                     stateRegister := stateMap(dest.toList(0)).U
                 }
+              }
             }
         }
     }

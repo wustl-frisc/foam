@@ -6,15 +6,15 @@ import fsm.featuredfsm._
 import aspects._
 
 object VendingMachine {
-  val USCoinSet = Set[Coin](Coin(25), Coin(5), Coin(10))
+  val USCoinSet = Set[Coin](Coin(5), Coin(10), Coin(25))
 
   val BritishCoinSet = Set[Coin](Coin(5), Coin(10), Coin(20), Coin(50))
 
   val GenericProducts = Set[Product](
-    Product(60, "Soda"),
-    Product(100, "Chips"),
-    Product(30, "Gum"),
-    Product(50, "Peanut"))
+    Product(25, "Soda"),
+    Product(50, "Gum"),
+    Product(75, "Peanut"),
+    Product(100, "Chips"))
 
   private val start = SimpleStateFactory(false)
 
@@ -23,17 +23,13 @@ object VendingMachine {
     case other => other.toString
   }
 
-  def apply(coinSet: Set[Coin], threshold: Int, productSet: Set[Product]) = {
+  def apply(coinSet: Set[Coin], threshold: Int, productSet: Set[Product], features: List[Aspect[NFA]]) = {
 
     val fsm = (new NFA(start)).addTransition((start, Lambda), TotalState(0, true))
-
     val coinFeatures = (for(c <- coinSet) yield (new AddCoin(c, threshold))).toList
     val productFeatures = (for(p <- productSet) yield (new DispenseProduct(p))).toList
-    val features = coinFeatures ++ productFeatures :+ (new PeanutWarning) :+ (new PrintFunds) :+
-      (new InsufficientFunds) :+ (new ChangeReturn) :+ (new BuyMore)
 
-    val finalFSM = Weaver[NFA](features, fsm, (before: NFA, after: NFA) => before.isEqual(after))
-
+    val finalFSM = Weaver[NFA](coinFeatures ++ productFeatures ++ features, fsm, (before: NFA, after: NFA) => before.isEqual(after))
     finalFSM
   }
 }

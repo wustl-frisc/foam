@@ -20,8 +20,9 @@ object AroundState {
 
       val removeIns = ins.foldLeft(prevBase)((newBase, in) => newBase.removeTransition(in, point))
       val removeOuts = outs.foldLeft(removeIns)((newBase, out) => newBase.removeTransition((point, out._1), out._2))
+      val removePoint = removeOuts.removeState(point)
 
-      joinPoints.foldLeft(removeOuts)((newBase, jp) => {
+      joinPoints.foldLeft(removePoint)((newBase, jp) => {
         val (advice, newNFA) = body(jp, newBase)
 
         jp.in match {

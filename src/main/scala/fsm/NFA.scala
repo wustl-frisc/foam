@@ -20,6 +20,10 @@ class NFA private (override val start: State,
     new NFA(start, newFSM.states, newFSM.alphabet, newFSM.transitions + (k -> (newFSM.transitions(k) - d)))
   }
 
+  def removeState(d: State) = {
+    new NFA(start, states - d, alphabet, transitions)
+  }
+
   def clearTransitions(k: TransitionKey) = {
     val newFSM = this.addState(k._1).addToken(k._2)
     new NFA(start, newFSM.states, newFSM.alphabet, newFSM.transitions + (k -> Set[State]()))
