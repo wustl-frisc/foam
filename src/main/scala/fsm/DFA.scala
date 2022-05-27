@@ -7,9 +7,13 @@ class DFA(input: FSM, error: State) extends FSM {
     override def start: State = input.start
     override def alphabet = input.alphabet
 
-    private var newStates: Set[State] = input.states
+    //get rid of unreachable states here
+    private var newStates: Set[State] = input.transitions.foldLeft(Set[State](start))((prevSet, transition) => {
+      prevSet ++ transition._2
+    })
     private var newTransitions: Map[TransitionKey,Set[State]] = input.transitions
     addTransitionsToError()
+    newStates = newStates + error
     processTransitions(newTransitions)
 
     override def states = newStates
@@ -41,7 +45,7 @@ class DFA(input: FSM, error: State) extends FSM {
     }
 
     private def addTransitionsToError() = {
-        for (token <- alphabet) {
+        for (token <- alphabet - Lambda) {
             for (state <- newStates) {
                 val destOption = newTransitions(state, token)
                 if (destOption.isEmpty) {

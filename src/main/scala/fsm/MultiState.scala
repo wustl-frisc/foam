@@ -3,12 +3,6 @@ package fsm
 
 case class MultiState(s: Set[State], val isAccept: Boolean) extends State {
 
-    override def executeCode: Unit = {
-        for (state <- s) {
-            state.executeCode
-        }
-    }
-
     override def toString: String = {
         val strSet = s.map(state => state.toString())
         val sortedStrList = strSet.toList.sortWith(_.compareTo(_) < 0)
