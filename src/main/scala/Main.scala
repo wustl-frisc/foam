@@ -2,7 +2,6 @@ package edu.wustl.sbs
 package main
 import fsm._
 import aspects._
-import fsm.featuredfsm._
 import examples._
 import chisel3._
 import chisel3.util._

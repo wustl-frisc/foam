@@ -58,10 +58,8 @@ class NFA private (override val start: State,
       for (t <- alphabet) {
         for (d <- transitions((s, t))) {
           if (t.isLamda) {
-            d.executeCode
             finalStates = finalStates ++ executeHelper(input, d)
           } else if (t == token) {
-            d.executeCode
             finalStates = finalStates ++ executeHelper(input.tail, d)
           }
         }
@@ -74,7 +72,6 @@ class NFA private (override val start: State,
   }
 
   def execute(input: List[Token]): Set[State] = {
-    start.executeCode
     val finalStates = executeHelper(input, start)
     if (finalStates.foldLeft(false)((prevIsAccept, state) => prevIsAccept || state.isAccept)) println("Execution Sucess!")
     else println("Execution failed")
