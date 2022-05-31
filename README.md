@@ -28,7 +28,7 @@ import foam.examples._
 - `import foam.examples._` contains a few examples of feature oriented finite state machines.
 
 # Creating an NFA
-For this portion of the tutorial, we will be demostrating the Vending Machine example. To create an NFA all we need to do is create a new NFA object.
+For this portion of the tutorial, we will be demostrating the Vending Machine example. To create an NFA all we need to do is create a new `NFA` object.
 
 ```scala
 val start = SimpleStateFactory(false)
@@ -68,9 +68,43 @@ All `State` and `Token` objects should extend these two traits.
 **Note: We provide a Lambda token. We consider this to be a clock step in the the FSM. Thus, lambda transitions will not result in the combination of states.**
 
 # Converting to DFA
-To convert an NFA to a DFA, all we need to do is create a new DFA object.
+To convert an NFA to a DFA, all we need to do is create a new `DFA` object.
+
 ```scala
 val error = SimpleStateFactory(false)
 val vendDFA = new DFA(vendFSM, error)
 ```
 The class takes a NFA and an error state. The DFA conversion will make sure that the the resulting DFA is complete. All undefined transitions for state-token pairs will go to the error state provided.
+
+# Converting to Chisel
+To convert a DFA into Chisel structures, all we need to do is create a new `ChiselFSM` object within a Chisel module.
+
+```scala
+class ExampleConversion(dfa: DFA) extends Module {
+  val chiselDFA = Module(new ChiselFSM(dfa))
+}
+```
+
+# Emitting NFAs and DFAs
+The `Emitter` object provides functionality to emit either Graphvis or Verilog.
+
+## Graphvis
+`emitGV` can emit either an `NFA` or `DFA`, but requres the user to provide names[^1] for all the componets.
+
+[^1]: Overriding the `toString` method is very useful here.
+
+```scala
+val namer: Any => String = (element) => element match {
+    case s: State if(s == start) => "Start"
+    case other => other.toString
+}
+
+Emitter.emitGV(vendDFA, namer)
+``` 
+
+## Verilog
+The Verilog emitter only accepts a `DFA`. However, that is the only thing that needs to be provided.
+
+```scala
+Emitter.emitVerilog(vendDFA)
+```
