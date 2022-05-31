@@ -108,3 +108,23 @@ The Verilog emitter only accepts a `DFA`. However, that is the only thing that n
 ```scala
 Emitter.emitVerilog(vendDFA)
 ```
+
+# Aspects
+Features can be built out of aspects. Aspects are always applied to NFAs. Aspects are composed of a _pointcut_ and _advice_. Simply, a pointcut is a _set_ of components in the NFA where the implmentation information in the advice is applied.
+
+## Pointcuts
+To simplify the process of creating pointcuts, we provide the `Pointcutter` object.
+
+```scala
+val statePointcut = Pointcutter[State, TotalState](nfa.states, state => state match {
+      case s: TotalState if(s.value + coin.value <= threshold) => true
+      case _ => false
+})
+```
+The two type parameters allow us to designate the type of the components going into the `Pointcutter` and the type of the components in the set that result.
+
+## Advice
+
+## Reflexive Acces
+
+## Applying Features
