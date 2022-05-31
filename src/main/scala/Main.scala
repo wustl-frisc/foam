@@ -1,8 +1,7 @@
-package edu.wustl.sbs
-package main
-import fsm._
-import aspects._
-import examples._
+import foam._
+import foam.aspects._
+import foam.examples._
+
 import chisel3._
 import chisel3.util._
 import chisel3.stage.ChiselStage

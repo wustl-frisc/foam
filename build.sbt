@@ -1,12 +1,16 @@
 // See README.md for license details.
 
 ThisBuild / scalaVersion     := "2.13.8"
-ThisBuild / version          := "1.0"
-ThisBuild / organization     := "edu.wustl.sbt"
+ThisBuild / version          := "1.0.1"
+ThisBuild / organization     := "edu.wustl.sbs"
 
-name := "fsm"
+name := "foam"
 
 val chiselVersion = "3.5.1"
+
+githubOwner := "jdeters"
+githubRepository := "foam"
+githubTokenSource := TokenSource.GitConfig("github.token")
 
 lazy val root = (project in file("."))
   .settings(
