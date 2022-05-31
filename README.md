@@ -13,9 +13,9 @@ To `build.sbt` add:
 ```sh
 githubTokenSource := TokenSource.GitConfig("github.token")
 resolvers += Resolver.githubPackages("jdeters", "foam")
-libraryDependencies ++= Seq("edu.wustl.sbs" %% "foam" % "<verson>")
+libraryDependencies ++= Seq("edu.wustl.sbs" %% "foam" % "<version>")
 ```
-Replace `<verson>` with the version you are targeting.
+Replace `<version>` with the version you are targeting.
 
 You'll now have access to the following:
 ```scala
