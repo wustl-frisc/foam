@@ -66,3 +66,11 @@ trait Token extends Component {
 All `State` and `Token` objects should extend these two traits. 
 
 **Note: We provide a Lambda token. We consider this to be a clock step in the the FSM. Thus, lambda transitions will not result in the combination of states.**
+
+# Converting to DFA
+To convert an NFA to a DFA, all we need to do is create a new DFA object.
+```scala
+val error = SimpleStateFactory(false)
+val vendDFA = new DFA(vendFSM, error)
+```
+The class takes a NFA and an error state. The DFA conversion will make sure that the the resulting DFA is complete. All undefined transitions for state-token pairs will go to the error state provided.
