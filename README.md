@@ -169,4 +169,5 @@ The `Weaver` object takes in a set of features, an NFAs, and a function to test 
 
 # Contributors
 Justin Deters
+
 Max Camp-Oberhauser
