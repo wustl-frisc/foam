@@ -110,7 +110,7 @@ Emitter.emitVerilog(vendDFA)
 ```
 
 # Aspects
-Features can be built out of aspects. Aspects are always applied to NFAs. Aspects are composed of a _pointcut_ and _advice_. Simply, a pointcut is a _set_ of components in the NFA where the implmentation information in the advice is applied.
+Features can be built out of aspects. Aspects are always applied to NFAs. Aspects are composed of a _pointcut_ and _advice_. Simply, a pointcut is a _set_ of joinpoints (components of the NFA) in the NFA where the implmentation information in the advice is applied.
 
 ## Pointcuts
 To simplify the process of creating pointcuts, we provide the `Pointcutter` object.
@@ -124,7 +124,49 @@ val statePointcut = Pointcutter[State, TotalState](nfa.states, state => state ma
 The two type parameters allow us to designate the type of the components going into the `Pointcutter` and the type of the components in the set that result.
 
 ## Advice
+Advice can be applied to either `State` objects or `Token` objects.
 
-## Reflexive Acces
+### Anatomy of Advice
+All advice has the following form:
+
+```scala
+Advice[Component](pointcut, nfa)((thisJoinPoint: Joinpoint[Component], thisNFA: NFA) => {
+  //Advice Body
+  (thisJoinPoint.point, thisNFA)
+})
+```
+Advice takes in a `pointcut`, an `NFA`, and an advice function. All advice functions must return a tuple containing a valid path for the NFA and the NFA the advice will be applied to. This could be a sinlge state, single token, state-token, or token-state path, depending on the advice. **Note: If any transitions are added inside the advice body. The resulting NFA must be passed in the tuple otherwise the changes will be lost.** 
+
+For states, the advice is called _for each transition in to and out of the state_. For tokens, the advice is called _for each state where the token is defined in a transition and every desitnation of that transition_.
+
+### Reflexive Access
+The parameters `thisJoinPoint` and `thisNFA`[^2] give refexive access to both the current joinpoint and the NFA. The `Joinpoint` class has three instance varables for reflexive access.
+
+- `point` direct reflexive access to the joinpoint.
+- `in` The current transition leading into the state in the case of `State` advice. The state before the token in the case of `Token` advice.
+- `out` The current trasition leading out of the state in the case of `State` advice. The state after the token in the case of `Token` advice.
+
+This reflexive access allows to apply different advice depending on which `in` or `out` the advice is being applied with. For example:
+```scala
+AfterToken[Coin](tokenPointcut, nfa)((thisJoinPoint: TokenJoinpoint[Coin], thisNFA: NFA) => {
+      var value = thisJoinPoint.out.asInstanceOf[ValueState].value
+      thisJoinPoint.out match {
+        case s: TotalState => (Some((PrinterState("Insufficient Funds!", s.value, false), Lambda)), thisNFA)
+        case _ => (None, thisNFA)
+      }
+})
+```
+
+[^2]: Technically, these can be named whatever you want, but we recommend using this naming to keep things straight.
 
 ## Applying Features
+To apply features, we provide the `Weaver` object. Features will be repeatedly applied until the resulting NFA no longer changes.
+
+```scala
+val finalFSM = Weaver[NFA](features, nfa, (before: NFA, after: NFA) => before.isEqual(after))
+```
+The `Weaver` object takes in a set of features, an NFAs, and a function to test the equality of two NFAs.
+
+# Contributors
+Justin Deters
+Max Camp-Oberhauser
