@@ -157,6 +157,19 @@ AfterToken[Coin](tokenPointcut, nfa)((thisJoinPoint: TokenJoinpoint[Coin], thisN
 })
 ```
 
+### Types of Advice 
+As stated previously, advice functions must return a valid path in the NFA. This path will change depending upon the component the advice is being applied to and if it's before, after, or around advice.
+
+#### State Advice
+- BeforeState: State-token path. All the transitions that went into the joinpoint now go at the head of the path. The path leads to the joinpoint.
+- AfterState: Token-state path. All the transitions that came from the joinpoint now go at the end of the path. The joinpoint sits at the head of the token-state path.
+- AroundState: State path. All the transitions now lead to and come from the state path.
+
+#### Token Advice
+- BeforeToken: Token-state path. The token-state path now sits ahead of the joinpoint.
+- AfterToken: State-token path. The state-token path now sits behind the joinpoint. 
+- AroundToken: Token path. The token path replaces the joinpoint.
+
 [^2]: Technically, these can be named whatever you want, but we recommend using this naming to keep things straight.
 
 ## Applying Features
