@@ -32,7 +32,7 @@ For this portion of the tutorial, we will be demostrating the Vending Machine ex
 
 ```scala
 val start = SimpleStateFactory(false)
-val fsm = (new NFA(start))
+val fsm = new NFA(start)
 ```
 The NFA class takes the start state as a parameter. We can build up the NFA using the `addTransition` function.
 
