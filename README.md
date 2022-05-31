@@ -41,3 +41,28 @@ val newFSM = fsm.addTransition((start, Lambda), TotalState(0, true))
 ```
 
 `addTransition` takes a `Transition Key` which is a `State` and `Token` tuple and a destination `State`. `addTransition` returns a new NFA. **Foam is designed to produce immutable objects, so you must store the result!** Conceptually, we are adding a new entry to a [state-transition table](https://en.wikipedia.org/wiki/State-transition_table).
+
+## Components of an NFA
+NFAs are made of `State` and `Tokens` objects which both inherit from `Component`.
+
+```scala
+trait Component {
+  override def toString = ""
+}
+```
+
+```scala
+trait State extends Component {
+    def isAccept: Boolean
+}
+```
+
+```scala
+trait Token extends Component {
+    def isLamda: Boolean = false
+}
+```
+
+All `State` and `Token` objects should extend these two traits. 
+
+**Note: We provide a Lambda token. We consider this to be a clock step in the the FSM. Thus, lambda transitions will not result in the combination of states.**
