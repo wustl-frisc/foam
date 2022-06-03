@@ -8,7 +8,7 @@ name := "foam"
 
 val chiselVersion = "3.5.1"
 
-githubOwner := "jdeters"
+githubOwner := "wustl-frisc"
 githubRepository := "foam"
 githubTokenSource := TokenSource.GitConfig("github.token")
 
