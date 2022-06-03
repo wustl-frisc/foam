@@ -1,100 +1,186 @@
-Chisel Project Template
-=======================
+Foam: Feature Oriented Automaton Machines
+=========================================
 
-You've done the [Chisel Bootcamp](https://github.com/freechipsproject/chisel-bootcamp), and now you
-are ready to start your own Chisel project.  The following procedure should get you started
-with a clean running [Chisel3](https://www.chisel-lang.org/) project.
+# Adding Foam to your project
 
-## Make your own Chisel3 project
+To `project/plugins.sbt` add: 
 
-### Dependencies
-
-#### JDK 8 or newer
-
-We recommend LTS releases Java 8 and Java 11. You can install the JDK as recommended by your operating system, or use the prebuilt binaries from [AdoptOpenJDK](https://adoptopenjdk.net/).
-
-#### SBT or mill
-
-SBT is the most common built tool in the Scala community. You can download it [here](https://www.scala-sbt.org/download.html).  
-mill is another Scala/Java build tool without obscure DSL like SBT. You can download it [here](https://github.com/com-lihaoyi/mill/releases)
-
-### How to get started
-
-#### Create a repository from the template
-
-This repository is a Github template. You can create your own repository from it by clicking the green `Use this template` in the top right.
-Please leave `Include all branches` **unchecked**; checking it will pollute the history of your new repository.
-For more information, see ["Creating a repository from a template"](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template).
-
-#### Wait for the template cleanup workflow to complete
-
-After using the template to create your own blank project, please wait a minute or two for the `Template cleanup` workflow to run which will removes some template-specific stuff from the repository (like the LICENSE).
-Refresh the repository page in your browser until you see a 2nd commit by `actions-user` titled `Template cleanup`.
-
-
-#### Clone your repository
-
-Once you have created a repository from this template and the `Template cleanup` workflow has completed, you can click the green button to get a link for cloning your repository.
-Note that it is easiest to push to a repository if you set up SSH with Github, please see the [related documentation](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/connecting-to-github-with-ssh). SSH is required for pushing to a Github repository when using two-factor authentication.
+```scala
+addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.2")
+```
+To `build.sbt` add:
 
 ```sh
-git clone git@github.com:maxcamp/fsm-library.git
-cd fsm-library
+githubTokenSource := TokenSource.GitConfig("github.token")
+resolvers += Resolver.githubPackages("jdeters", "foam")
+libraryDependencies ++= Seq("edu.wustl.sbs" %% "foam" % "<version>")
+```
+Replace `<version>` with the version you are targeting.
+
+You'll now have access to the following:
+```scala
+import foam._
+import foam.aspects._
+import foam.examples._
+```
+- `import foam._` contains the basic classes for creating NFAs, converting to DFAs, interfacing with Chisel and generating Graphvis.
+- `import foam.aspects._` contains the aspect oriented fucntionality used for creating features.
+- `import foam.examples._` contains a few examples of feature oriented finite state machines.
+
+# Creating an NFA
+For this portion of the tutorial, we will be demostrating the Vending Machine example. To create an NFA all we need to do is create a new `NFA` object.
+
+```scala
+val start = SimpleStateFactory(false)
+val fsm = new NFA(start)
+```
+The NFA class takes the start state as a parameter. We can build up the NFA using the `addTransition` function.
+
+```scala
+val newFSM = fsm.addTransition((start, Lambda), TotalState(0, true))
 ```
 
-#### Set project organization and name in build.sbt
+`addTransition` takes a `Transition Key` which is a `State` and `Token` tuple and a destination `State`. `addTransition` returns a new NFA. **Foam is designed to produce immutable objects, so you must store the result!** Conceptually, we are adding a new entry to a [state-transition table](https://en.wikipedia.org/wiki/State-transition_table).
 
-The cleanup workflow will have attempted to provide sensible defaults for `ThisBuild / organization` and `name` in the `build.sbt`.
-Feel free to use your text editor of choice to change them as you see fit.
+## Components of an NFA
+NFAs are made of `State` and `Tokens` objects which both inherit from `Component`.
 
-#### Clean up the README.md file
-
-Again, use you editor of choice to make the README specific to your project.
-
-#### Add a LICENSE file
-
-It is important to have a LICENSE for open source (or closed source) code.
-This template repository has the Unlicense in order to allow users to add any license they want to derivative code.
-The Unlicense is stripped when creating a repository from this template so that users do not accidentally unlicense their own work.
-
-For more information about a license, check out the [Github Docs](https://docs.github.com/en/free-pro-team@latest/github/building-a-strong-community/adding-a-license-to-a-repository).
-
-#### Commit your changes
-```sh
-git commit -m 'Starting fsm-library'
-git push origin main
+```scala
+trait Component {
+  override def toString = ""
+}
 ```
 
-### Did it work?
-
-You should now have a working Chisel3 project.
-
-You can run the included test with:
-```sh
-sbt test
+```scala
+trait State extends Component {
+    def isAccept: Boolean
+}
 ```
 
-You should see a whole bunch of output that ends with something like the following lines
+```scala
+trait Token extends Component {
+    def isLamda: Boolean = false
+}
 ```
-[info] Tests: succeeded 1, failed 0, canceled 0, ignored 0, pending 0
-[info] All tests passed.
-[success] Total time: 5 s, completed Dec 16, 2020 12:18:44 PM
+
+All `State` and `Token` objects should extend these two traits. 
+
+**Note: We provide a Lambda token. We consider this to be a clock step in the the FSM. Thus, lambda transitions will not result in the combination of states.**
+
+# Converting to DFA
+To convert an NFA to a DFA, all we need to do is create a new `DFA` object.
+
+```scala
+val error = SimpleStateFactory(false)
+val vendDFA = new DFA(vendFSM, error)
 ```
-If you see the above then...
+The class takes a NFA and an error state. The DFA conversion will make sure that the the resulting DFA is complete. All undefined transitions for state-token pairs will go to the error state provided.
 
-### It worked!
+# Converting to Chisel
+To convert a DFA into Chisel structures, all we need to do is create a new `ChiselFSM` object within a Chisel module.
 
-You are ready to go. We have a few recommended practices and things to do.
+```scala
+class ExampleConversion(dfa: DFA) extends Module {
+  val chiselDFA = Module(new ChiselFSM(dfa))
+}
+```
 
-* Use packages and following conventions for [structure](https://www.scala-sbt.org/1.x/docs/Directories.html) and [naming](http://docs.scala-lang.org/style/naming-conventions.html)
-* Package names should be clearly reflected in the testing hierarchy
-* Build tests for all your work
-* Read more about testing in SBT in the [SBT docs](https://www.scala-sbt.org/1.x/docs/Testing.html)
-* This template includes a [test dependency](https://www.scala-sbt.org/1.x/docs/Library-Dependencies.html#Per-configuration+dependencies) on [chiseltest](https://github.com/ucb-bar/chisel-testers2), this is a reasonable starting point for most tests
-  * You can remove this dependency in the build.sbt file if you want to
-* Change the name of your project in the build.sbt file
-* Change your README.md
+# Emitting NFAs and DFAs
+The `Emitter` object provides functionality to emit either Graphvis or Verilog.
 
-## Problems? Questions?
+## Graphvis
+`emitGV` can emit either an `NFA` or `DFA`, but requres the user to provide names[^1] for all the componets.
 
-Check out the [Chisel Users Community](https://www.chisel-lang.org/community.html) page for links to get in contact!
+[^1]: Overriding the `toString` method is very useful here.
+
+```scala
+val namer: Any => String = (element) => element match {
+    case s: State if(s == start) => "Start"
+    case other => other.toString
+}
+
+Emitter.emitGV(vendDFA, namer)
+``` 
+
+## Verilog
+The Verilog emitter only accepts a `DFA`. However, that is the only thing that needs to be provided.
+
+```scala
+Emitter.emitVerilog(vendDFA)
+```
+
+# Aspects
+Features can be built out of aspects. Aspects are always applied to NFAs. Aspects are composed of a _pointcut_ and _advice_. Simply, a pointcut is a _set_ of joinpoints (components of the NFA) in the NFA where the implmentation information in the advice is applied.
+
+## Pointcuts
+To simplify the process of creating pointcuts, we provide the `Pointcutter` object.
+
+```scala
+val statePointcut = Pointcutter[State, TotalState](nfa.states, state => state match {
+      case s: TotalState if(s.value + coin.value <= threshold) => true
+      case _ => false
+})
+```
+The two type parameters allow us to designate the type of the components going into the `Pointcutter` and the type of the components in the set that result.
+
+## Advice
+Advice can be applied to either `State` objects or `Token` objects.
+
+### Anatomy of Advice
+All advice has the following form:
+
+```scala
+Advice[Component](pointcut, nfa)((thisJoinPoint: Joinpoint[Component], thisNFA: NFA) => {
+  //Advice Body
+  (thisJoinPoint.point, thisNFA)
+})
+```
+Advice takes in a `pointcut`, an `NFA`, and an advice function. All advice functions must return a tuple containing a valid path for the NFA and the NFA the advice will be applied to. This could be a sinlge state, single token, state-token, or token-state path, depending on the advice. **Note: If any transitions are added inside the advice body. The resulting NFA must be passed in the tuple otherwise the changes will be lost.** 
+
+For states, the advice is called _for each transition in to and out of the state_. For tokens, the advice is called _for each state where the token is defined in a transition and every desitnation of that transition_.
+
+### Reflexive Access
+The parameters `thisJoinPoint` and `thisNFA`[^2] give refexive access to both the current joinpoint and the NFA. The `Joinpoint` class has three instance varables for reflexive access.
+
+- `point` direct reflexive access to the joinpoint.
+- `in` The current transition leading into the state in the case of `State` advice. The state before the token in the case of `Token` advice.
+- `out` The current trasition leading out of the state in the case of `State` advice. The state after the token in the case of `Token` advice.
+
+This reflexive access allows to apply different advice depending on which `in` or `out` the advice is being applied with. For example:
+```scala
+AfterToken[Coin](tokenPointcut, nfa)((thisJoinPoint: TokenJoinpoint[Coin], thisNFA: NFA) => {
+      var value = thisJoinPoint.out.asInstanceOf[ValueState].value
+      thisJoinPoint.out match {
+        case s: TotalState => (Some((PrinterState("Insufficient Funds!", s.value, false), Lambda)), thisNFA)
+        case _ => (None, thisNFA)
+      }
+})
+```
+
+### Types of Advice 
+As stated previously, advice functions must return a valid path in the NFA. This path will change depending upon the component the advice is being applied to and if it's before, after, or around advice.
+
+#### State Advice
+- BeforeState: State-token path. All the transitions that went into the joinpoint now go at the head of the path. The path leads to the joinpoint.
+- AfterState: Token-state path. All the transitions that came from the joinpoint now go at the end of the path. The joinpoint sits at the head of the token-state path.
+- AroundState: State path. All the transitions now lead to and come from the state path.
+
+#### Token Advice
+- BeforeToken: Token-state path. The token-state path now sits ahead of the joinpoint.
+- AfterToken: State-token path. The state-token path now sits behind the joinpoint. 
+- AroundToken: Token path. The token path replaces the joinpoint.
+
+[^2]: Technically, these can be named whatever you want, but we recommend using this naming to keep things straight.
+
+## Applying Features
+To apply features, we provide the `Weaver` object. Features will be repeatedly applied until the resulting NFA no longer changes.
+
+```scala
+val finalFSM = Weaver[NFA](features, nfa, (before: NFA, after: NFA) => before.isEqual(after))
+```
+The `Weaver` object takes in a set of features, an NFAs, and a function to test the equality of two NFAs.
+
+# Contributors
+Justin Deters
+
+Max Camp-Oberhauser
