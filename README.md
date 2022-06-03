@@ -12,7 +12,7 @@ To `build.sbt` add:
 
 ```sh
 githubTokenSource := TokenSource.GitConfig("github.token")
-resolvers += Resolver.githubPackages("jdeters", "foam")
+resolvers += Resolver.githubPackages("wustl-frisc", "foam")
 libraryDependencies ++= Seq("edu.wustl.sbs" %% "foam" % "<version>")
 ```
 Replace `<version>` with the version you are targeting.
