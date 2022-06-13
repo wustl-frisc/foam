@@ -1,7 +1,7 @@
 // See README.md for license details.
 
 ThisBuild / scalaVersion     := "2.13.8"
-ThisBuild / version          := "1.0.1"
+ThisBuild / version          := "1.0-SNAPSHOT"
 ThisBuild / organization     := "edu.wustl.sbs"
 
 name := "foam"
