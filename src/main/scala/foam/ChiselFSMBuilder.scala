@@ -23,7 +23,7 @@ object ChiselFSMBuilder {
 
     for((s, i) <- chiselFSM.stateMap) {
       when(chiselFSM.io.out === i.U) {
-        s.asInstanceOf[ChiselState].code
+        s.asInstanceOf[ChiselState].code()
       }
     }
 

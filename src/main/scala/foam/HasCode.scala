@@ -1,5 +1,5 @@
 package foam
 
 trait HasCode extends Component {
-  val code: Any
+  val code: () => Unit
 }
