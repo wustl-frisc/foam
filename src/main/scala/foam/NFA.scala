@@ -21,7 +21,12 @@ class NFA private (override val start: State,
   }
 
   def removeState(d: State) = {
-    new NFA(start, states - d, alphabet, transitions)
+    val newTransitions = transitions.filter(_._1._1 match {
+      case s: State if s == d => false
+      case _ => true
+    })
+
+    new NFA(start, states - d, alphabet, newTransitions)
   }
 
   def clearTransitions(k: TransitionKey) = {
