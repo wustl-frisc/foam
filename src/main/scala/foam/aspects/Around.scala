@@ -13,7 +13,7 @@ object AroundState {
         Set[StateJoinpoint[A]](StateJoinpoint[A](point, None, None))
       } else if (ins.nonEmpty && outs.isEmpty) {
         for(in <- ins) yield (StateJoinpoint[A](point, Some(in), None))
-      } else  if (ins.isEmpty && outs.nonEmpty) {
+      } else if (ins.isEmpty && outs.nonEmpty) {
         for(out <- outs) yield (StateJoinpoint[A](point, None, Some(out)))
       } else {
         for(in <- ins; out <- outs) yield (StateJoinpoint[A](point, Some(in), Some(out)))
