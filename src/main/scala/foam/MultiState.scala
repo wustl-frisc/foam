@@ -1,7 +1,7 @@
 
 package foam
 
-case class MultiState(s: Set[State], val isAccept: Boolean) extends State {
+case class MultiState(s: Set[State], isAccept: Boolean) extends State {
 
     override def toString: String = {
         val strSet = s.map(state => state.toString())
@@ -16,7 +16,7 @@ object MultiStateFactory {
 
     def apply(s: Set[State]): State = {
         if (s.size == 1) {
-            s.toList(0)
+            s.toList.head
         }
         else if (s.size > 1) {
             var cumulativeSet = Set[State]()
@@ -28,7 +28,7 @@ object MultiStateFactory {
             }
 
             //if any of these are accept states, we need to count the whole thing
-            var isAccept = cumulativeSet.foldLeft(false)((prevAccept, state) => prevAccept || state.isAccept)
+            val isAccept = cumulativeSet.foldLeft(false)((prevAccept, state) => prevAccept || state.isAccept)
 
             MultiState(cumulativeSet, isAccept)
         }
