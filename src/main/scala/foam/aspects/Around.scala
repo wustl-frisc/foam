@@ -9,11 +9,13 @@ object AroundState {
       val ins = Pointcutter.getIns(prevBase, point)
       val outs = Pointcutter.getOuts(prevBase, point)
 
-      val joinPoints = if(ins.isEmpty) {
+      val joinPoints = if(ins.isEmpty && outs.isEmpty) {
         Set[StateJoinpoint[A]](StateJoinpoint[A](point, None, None))
-      } else if (outs.isEmpty) {
+      } else if (ins.nonEmpty && outs.isEmpty) {
         for(in <- ins) yield (StateJoinpoint[A](point, Some(in), None))
-      } else  {
+      } else if (ins.isEmpty && outs.nonEmpty) {
+        for(out <- outs) yield (StateJoinpoint[A](point, None, Some(out)))
+      } else {
         for(in <- ins; out <- outs) yield (StateJoinpoint[A](point, Some(in), Some(out)))
       }
 
@@ -24,17 +26,11 @@ object AroundState {
       joinPoints.foldLeft(removePoint)((newBase, jp) => {
         val (advice, newNFA) = body(jp, newBase)
 
-        jp.in match {
-          case None => newNFA
-          case Some(in) => {
-            val step1 = newNFA.addTransition(in, advice)
-            jp.out match {
-              case None => step1
-              case Some(out) => {
-                step1.addTransition((advice, out._1), out._2)
-              }
-            }
-          }
+        (jp.in, jp.out) match {
+          case (None, None) => newNFA
+          case (Some(in), None) => newNFA.addTransition(in, advice)
+          case (None, Some(out)) => newNFA.addTransition((advice, out._1), out._2)
+          case (Some(in), Some(out)) => newNFA.addTransition(in, advice).addTransition((advice, out._1), out._2)
         }
       })
     })
@@ -55,7 +51,7 @@ object AroundToken {
           case Some(path) => {
             val tokenAdvice = path
             newNFA.removeTransition((jp.in, point), jp.out)
-            .addTransition((jp.in, tokenAdvice), jp.out)
+              .addTransition((jp.in, tokenAdvice), jp.out)
           }
         }
       })
