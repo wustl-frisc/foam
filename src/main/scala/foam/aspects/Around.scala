@@ -3,7 +3,7 @@ package foam
 package aspects
 
 object AroundState {
-  def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (StateJoinpoint[A], NFA) => (A, NFA)) = {
+  def apply[A <: State](pointcut: Pointcut[A], base: NFA)(body: (StateJoinpoint[A], NFA) => (A, NFA)): NFA = {
     Advice[A, NFA](pointcut, base)((prevBase, point) => {
 
       val ins = Pointcutter.getIns(prevBase, point)
@@ -12,11 +12,11 @@ object AroundState {
       val joinPoints = if(ins.isEmpty && outs.isEmpty) {
         Set[StateJoinpoint[A]](StateJoinpoint[A](point, None, None))
       } else if (ins.nonEmpty && outs.isEmpty) {
-        for(in <- ins) yield (StateJoinpoint[A](point, Some(in), None))
+        for(in <- ins) yield StateJoinpoint[A](point, Some(in), None)
       } else if (ins.isEmpty && outs.nonEmpty) {
-        for(out <- outs) yield (StateJoinpoint[A](point, None, Some(out)))
+        for(out <- outs) yield StateJoinpoint[A](point, None, Some(out))
       } else {
-        for(in <- ins; out <- outs) yield (StateJoinpoint[A](point, Some(in), Some(out)))
+        for(in <- ins; out <- outs) yield StateJoinpoint[A](point, Some(in), Some(out))
       }
 
       val removeIns = ins.foldLeft(prevBase)((newBase, in) => newBase.removeTransition(in, point))
@@ -38,21 +38,19 @@ object AroundState {
 }
 
 object AroundToken {
-  def apply[A <: Token](pointcut: Pointcut[A], base: NFA)(body: (TokenJoinpoint[A], NFA) => (Option[Token], NFA)) = {
+  def apply[A <: Token](pointcut: Pointcut[A], base: NFA)(body: (TokenJoinpoint[A], NFA) => (Option[Token], NFA)): NFA = {
     Advice[A, NFA](pointcut, base)((prevBase, point) => {
       val inOuts = Pointcutter.getInOuts(prevBase, point)
-      val joinPoints = for(inOut <- inOuts) yield (TokenJoinpoint[A](point, inOut._1, inOut._2))
+      val joinPoints = for(inOut <- inOuts) yield TokenJoinpoint[A](point, inOut._1, inOut._2)
 
       joinPoints.foldLeft(prevBase)((newBase, jp) => {
         val (advice, newNFA) = body(jp, newBase)
 
         advice match {
           case None => newNFA
-          case Some(path) => {
-            val tokenAdvice = path
+          case Some(tokenAdvice) =>
             newNFA.removeTransition((jp.in, point), jp.out)
               .addTransition((jp.in, tokenAdvice), jp.out)
-          }
         }
       })
     })

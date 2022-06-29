@@ -10,17 +10,17 @@ class NFA private (override val start: State,
     this(start, Set[State](start), Set[Token](Lambda), Map[TransitionKey, Set[State]]((start, Lambda) -> Set[State]()))
   }
 
-  def addTransition(k: TransitionKey, d: State) = {
+  def addTransition(k: TransitionKey, d: State): NFA = {
     val newFSM = this.addState(k._1).addToken(k._2).addState(d)
     new NFA(start, newFSM.states, newFSM.alphabet, newFSM.transitions + (k -> (newFSM.transitions(k) + d)))
   }
 
-  def removeTransition(k: TransitionKey, d: State) = {
+  def removeTransition(k: TransitionKey, d: State): NFA = {
     val newFSM = this.addState(k._1).addToken(k._2).addState(d)
     new NFA(start, newFSM.states, newFSM.alphabet, newFSM.transitions + (k -> (newFSM.transitions(k) - d)))
   }
 
-  def removeState(d: State) = {
+  def removeState(d: State): NFA = {
     val newTransitions = transitions.filter(_._1._1 match {
       case s: State if s == d => false
       case _ => true
@@ -29,7 +29,7 @@ class NFA private (override val start: State,
     new NFA(start, states - d, alphabet, newTransitions)
   }
 
-  def clearTransitions(k: TransitionKey) = {
+  def clearTransitions(k: TransitionKey): NFA = {
     val newFSM = this.addState(k._1).addToken(k._2)
     new NFA(start, newFSM.states, newFSM.alphabet, newFSM.transitions + (k -> Set[State]()))
   }
@@ -38,7 +38,7 @@ class NFA private (override val start: State,
     this
   } else {
     //construct a new transition for each existing state to the error state on this token
-    val newTransitions = (for (s <- states) yield ((s, t) -> Set[State]()))
+    val newTransitions = for (s <- states) yield (s, t) -> Set[State]()
 
     new NFA(start, states, alphabet + t, transitions ++ newTransitions.toMap)
   }
@@ -48,16 +48,16 @@ class NFA private (override val start: State,
   } else {
 
     //construct a new transition for each token from this state to the error state
-    val newTransitions = for (t <- alphabet) yield ((s, t) -> Set[State]())
+    val newTransitions = for (t <- alphabet) yield (s, t) -> Set[State]()
 
     new NFA(start, states + s, alphabet, transitions ++ newTransitions.toMap)
   }
 
   private def executeHelper(input: List[Token], s: State): Set[State] = {
-    val token = if (input.length > 0) input.head else Lambda
+    val token = if (input.nonEmpty) input.head else Lambda
     var finalStates = Set[State]()
 
-    if (input.length == 0 && s.isAccept) {
+    if (input.isEmpty && s.isAccept) {
       finalStates + s
     } else {
       for (t <- alphabet) {

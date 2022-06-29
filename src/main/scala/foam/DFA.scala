@@ -5,7 +5,7 @@ package foam
 class DFA(input: FSM, error: State) extends FSM {
 
     override def start: State = input.start
-    override def alphabet = input.alphabet
+    override def alphabet: Set[Token] = input.alphabet
 
     //get rid of unreachable states here
     private var newStates: Set[State] = input.transitions.foldLeft(Set[State](start))((prevSet, transition) => {
@@ -16,8 +16,8 @@ class DFA(input: FSM, error: State) extends FSM {
     newStates = newStates + error
     processTransitions(newTransitions)
 
-    override def states = newStates
-    override def transitions = newTransitions
+    override def states: Set[State] = newStates
+    override def transitions: Map[(State, Token), Set[State]] = newTransitions
 
     private def processTransitions(transitions: Map[TransitionKey, Set[State]]): Unit = {
         for (((source, token) -> destination) <- transitions) {
@@ -37,14 +37,14 @@ class DFA(input: FSM, error: State) extends FSM {
     }
 
     private def reduceTransitionsByToken(transitions: Map[TransitionKey, Set[State]], state: State) = {
-        implicit var tokenMap = Map[Token, Set[State]]()
+        implicit var tokenMap: Map[Token, Set[State]] = Map[Token, Set[State]]()
         for (((source, token) -> destination) <- transitions) {
             tokenMap = tokenMap + (token -> (tokenMap.getOrElse(token, Set[State]()) ++ destination))
         }
         tokenMap.map({ case (t, d) => ((state, t), d) })
     }
 
-    private def addTransitionsToError() = {
+    private def addTransitionsToError(): Unit = {
         for (token <- alphabet - Lambda) {
             for (state <- newStates) {
                 val destOption = newTransitions(state, token)

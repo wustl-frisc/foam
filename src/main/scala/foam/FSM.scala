@@ -7,7 +7,7 @@ trait FSM {
     def alphabet: Set[Token]
     def transitions: Map[TransitionKey, Set[State]]
 
-    def isEqual(otherFSM: FSM) = {
+    def isEqual(otherFSM: FSM): Boolean = {
       otherFSM.states.equals(this.states) &&
       otherFSM.alphabet.equals(this.alphabet) &&
       otherFSM.transitions.equals(this.transitions)
