@@ -1,32 +1,34 @@
 package foam
 
 import chisel3._
+import scala.math._
 
 object ChiselFSMBuilder {
-  def apply(dfa: DFA) = {
+  def apply(fsm: FSM) = {
 
-    val chiselFSM = Module(new ChiselFSM(dfa))
+    val numStates = fsm.states.size
+    val numTokens = fsm.alphabet.size
 
-    val (headToken, headIndex) = (chiselFSM.tokenMap - Lambda).head
-    val choppedMap = chiselFSM.tokenMap - Lambda - headToken
+    val statesWidth = ceil(log(numStates)/log(2)).toInt
+    val tokensWidth = ceil(log(numTokens)/log(2)).toInt
 
-    (choppedMap.foldLeft(when(headToken.asInstanceOf[ChiselToken].cond) {
-      chiselFSM.io.in := headIndex.U
-    })((whenBlock, k) => {
-      val (t, i) = k
-      whenBlock.elsewhen(t.asInstanceOf[ChiselToken].cond){
-        chiselFSM.io.in := i.U
-      }
-    })).otherwise {
-      chiselFSM.io.in := chiselFSM.tokenMap(Lambda).U
+    val stateMap = fsm.states.zipWithIndex.toMap
+    val tokenMap = fsm.alphabet.zipWithIndex.toMap
+
+    val stateRegister = RegInit(stateMap(fsm.start).U(statesWidth.W))
+
+    for ((state, stateId) <- stateMap) {
+        when (stateId.U === stateRegister) {
+            state.asInstanceOf[ChiselState].code()
+            val transitionsFromState = fsm.transitions.filter((transition) => state == transition._1._1)
+            for (((source,token), dest) <- transitionsFromState) {
+              if(!dest.isEmpty) {
+                when (token.asInstanceOf[ChiselToken].cond) {
+                    stateRegister := stateMap(dest.toList(0)).U
+                }
+              }
+            }
+        }
     }
-
-    for((s, i) <- chiselFSM.stateMap) {
-      when(chiselFSM.io.out === i.U) {
-        s.asInstanceOf[ChiselState].code()
-      }
-    }
-
-    chiselFSM
   }
 }
