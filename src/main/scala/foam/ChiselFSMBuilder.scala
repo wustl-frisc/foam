@@ -17,9 +17,14 @@ object ChiselFSMBuilder {
 
     val stateRegister = RegInit(stateMap(fsm.start).U(statesWidth.W))
 
+    for((s, i) <- stateMap) {
+      when(stateRegister === i.U) {
+        s.asInstanceOf[ChiselState].code()
+      }
+    }
+
     for ((state, stateId) <- stateMap) {
         when (stateId.U === stateRegister) {
-            state.asInstanceOf[ChiselState].code()
             val transitionsFromState = fsm.transitions.filter((transition) => state == transition._1._1)
             for (((source,token), dest) <- transitionsFromState) {
               if(!dest.isEmpty) {
