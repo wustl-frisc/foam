@@ -1,4 +1,4 @@
-package foam.examples.crossProduct
+package foam.examples
 
 import foam.examples.{NamedState, NumericToken, TextToken}
 import foam.product.CrossProduct
@@ -38,5 +38,5 @@ object Nim {
 
   // This machine represents the subtraction game of Nim, starting with 3 sticks and having two players alternate turns.
   val gameOfNim: NFA = CrossProduct(heapStateMachine, playerMachine)
-  Emitter.emitGV(gameOfNim, _.toString)
+  Emitter.emitGV(gameOfNim)
 }

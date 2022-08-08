@@ -1,4 +1,4 @@
-package foam.examples.productMachine
+package foam.examples
 
 import foam.examples.{NamedState, NumericToken}
 import foam.product.Product
@@ -38,5 +38,5 @@ object ProductMachine {
   // number of 1s or contain the substring 000.
   val productMachine: NFA = Product(oddNumberOf1sMachine, contains000SubstringMachine, isConjunctionMachine = true)
 
-  Emitter.emitGV(productMachine, _.toString)
+  Emitter.emitGV(productMachine)
 }
