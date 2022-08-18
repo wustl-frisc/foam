@@ -58,7 +58,7 @@ object Cache {
     .addTransition((sIdle, busRdXToken), sWriteBack)
 
     var result = cacheNFA
-    for(i <- 0 to 2) {
+    for(i <- 0 to 1) {
       result = CrossProduct(result, cacheNFA)
     }
     println(s"${result.states.size},${result.alphabet.size},${result.transitions.size}")
