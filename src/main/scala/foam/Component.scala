@@ -2,5 +2,6 @@
 package foam
 
 trait Component {
-  override def toString = ""
+  val id = ""
+  override def toString = id
 }

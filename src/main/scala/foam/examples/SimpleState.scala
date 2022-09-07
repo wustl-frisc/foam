@@ -2,7 +2,7 @@
 package foam
 package examples
 
-private final case class SimpleState(val id: Int, val isAccept: Boolean) extends State {
+private final case class SimpleState(override val id: String, val isAccept: Boolean) extends State {
 
     override def toString(): String = {
         "SimpleState" + id
@@ -16,6 +16,6 @@ object SimpleStateFactory {
 
     def apply(isAccept: Boolean): State = {
         stateCount += 1
-        SimpleState(stateCount, isAccept)
+        SimpleState(stateCount.toString, isAccept)
     }
 }
