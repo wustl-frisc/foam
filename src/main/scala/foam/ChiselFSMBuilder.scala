@@ -3,8 +3,12 @@ package foam
 import chisel3._
 import scala.math._
 
+class ChiselFSMHandle (val tokenIDtoWire: Map[String, Bool], val stateIDtoWire: Map[String, Bool]) {
+  def apply(name: String): Bool = (tokenIDtoWire ++ stateIDtoWire)(name)
+}
+
 object ChiselFSMBuilder {
-  def apply(fsm: FSM): (Map[String, Bool], Map[String, Bool]) = {
+  def apply(fsm: FSM): ChiselFSMHandle = {
 
     val numStates = fsm.states.size
     val numTokens = fsm.alphabet.size
@@ -38,6 +42,6 @@ object ChiselFSMBuilder {
     val tokenIDtoWire = (for ((t,b) <- tokenMap) yield (t.id -> b)).toMap
     val stateIDtoWire = (for ((s,i) <- stateMap) yield (s.id -> (i.U === stateRegister))).toMap
 
-    (tokenIDtoWire, stateIDtoWire)
+    new ChiselFSMHandle(tokenIDtoWire, stateIDtoWire)
   }
 }
