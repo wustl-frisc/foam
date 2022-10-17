@@ -10,6 +10,10 @@ class NFA private (override val start: State,
     this(start, Set[State](start), Set[Token](Lambda), Map[TransitionKey, Set[State]]((start, Lambda) -> Set[State]()))
   }
 
+  def +(otherNFA: NFA): NFA = {
+    new NFA(start, this.states ++ otherNFA.states, this.alphabet ++ otherNFA.alphabet, this.transitions ++ otherNFA.transitions)
+  }
+
   def addTransition(k: TransitionKey, d: State): NFA = {
     val newFSM = this.addState(k._1).addToken(k._2).addState(d)
     new NFA(start, newFSM.states, newFSM.alphabet, newFSM.transitions + (k -> (newFSM.transitions(k) + d)))
