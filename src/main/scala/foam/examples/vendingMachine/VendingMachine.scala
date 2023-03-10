@@ -15,12 +15,7 @@ object VendingMachine {
     Product(75, "Peanut"),
     Product(100, "Chips"))
 
-  private val start = SimpleStateFactory(false)
-
-  val namer: Any => String = (element) => element match {
-    case s: State if(s == start) => "Start"
-    case other => other.toString
-  }
+  private val start = NamedState("Start", false)
 
   def apply(coinSet: Set[Coin], threshold: Int, productSet: Set[Product], features: List[Aspect[NFA]]) = {
 
